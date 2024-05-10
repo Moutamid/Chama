@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/leftside"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/clockIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/blue_light"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:src="@drawable/time" />
+
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:layout_below="@id/clockIcon"
+                android:layout_centerHorizontal="true"
+                android:background="@color/blue" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toRightOf="@id/leftside">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Chama Contribution" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jul 21, 2022"
+                    android:drawableStart="@drawable/calender"
+                    android:drawablePadding="6dp"
+                    android:textSize="12sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/text2" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USD 140 credited in your account by @nickjones. Tap to see this in chama group. "
+                android:textSize="15sp"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/text2" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

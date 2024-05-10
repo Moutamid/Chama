@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="blue">#2477D8</color>
+    <color name="blue_2">#3A85DC</color>
+    <color name="blue_light">#E9F1FB</color>
+    <color name="text">#D1D3D4</color>
+    <color name="grey">#EBEBEB</color>
+    <color name="text2">#9A9FA5</color>
+    <color name="text3">#707070</color>
+    <color name="bar_normal">#1C6455</color>
+    <color name="bar_locked">#8FA2C6</color>
+    <color name="bar_withdrawal">#75C9A2</color>
+</resources>
