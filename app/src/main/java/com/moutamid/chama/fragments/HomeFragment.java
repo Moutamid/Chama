@@ -15,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.FragmentHomeBinding;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements BottomNavigationView.OnNavigationItemSelectedListener {
     FragmentHomeBinding binding;
     public HomeFragment() {
         // Required empty public constructor
@@ -28,20 +28,19 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(getLayoutInflater(), container, false);
 
         binding.bottomNav.setItemActiveIndicatorColor(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new DashboardFragment()).commit();
-//        binding.bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-//                int id = menuItem.getItemId();
-//                if (id == R.id.dashboard) {
-//                    getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new DashboardFragment()).commit();
-//                } else if (id == R.id.chat) {
-//                    getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new MessageFragment()).commit();
-//                }
-//                return false;
-//            }
-//        });
+        binding.bottomNav.setOnNavigationItemSelectedListener(this);
         binding.bottomNav.setSelectedItemId(R.id.dashboard);
         return binding.getRoot();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
+        if (id == R.id.dashboard) {
+            getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new DashboardFragment()).commit();
+        } else if (id == R.id.chat) {
+            getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new MessageFragment()).commit();
+        }
+        return true;
     }
 }
