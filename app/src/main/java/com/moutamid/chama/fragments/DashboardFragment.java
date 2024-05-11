@@ -27,6 +27,7 @@ import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
 import com.moutamid.chama.models.TimelineModel;
@@ -109,6 +110,7 @@ public class DashboardFragment extends Fragment {
         XAxis xAxis = chart.getXAxis();
         xAxis.setGranularity(1f);
         xAxis.setCenterAxisLabels(true);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -160,11 +162,15 @@ public class DashboardFragment extends Fragment {
         } else {
             // create 4 DataSets
             set1 = new BarDataSet(values1, "Normal");
-            set1.setColor(Color.rgb(104, 241, 175));
+            set1.setColor(getResources().getColor(R.color.bar_normal));
             set2 = new BarDataSet(values2, "Locked");
-            set2.setColor(Color.rgb(164, 228, 251));
+            set2.setColor(getResources().getColor(R.color.bar_locked));
             set3 = new BarDataSet(values3, "Withdrawal");
-            set3.setColor(Color.rgb(242, 247, 158));
+            set3.setColor(getResources().getColor(R.color.bar_withdrawal));
+
+            set1.setDrawValues(false);
+            set2.setDrawValues(false);
+            set3.setDrawValues(false);
 
             BarData data = new BarData(set1, set2, set3);
             data.setValueFormatter(new LargeValueFormatter());
@@ -227,21 +233,22 @@ public class DashboardFragment extends Fragment {
         xAxis.setTextColor(Color.BLACK);
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setTextColor(ColorTemplate.getHoloBlue());
+        leftAxis.setTextColor(Color.BLACK);
         leftAxis.setAxisMaximum(200f);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawGridLines(true);
         leftAxis.setGranularityEnabled(true);
 
-        YAxis rightAxis = lineChart.getAxisRight();
-        rightAxis.setTextColor(Color.RED);
-        rightAxis.setAxisMaximum(900);
-        rightAxis.setAxisMinimum(-200);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setDrawZeroLine(false);
-        rightAxis.setGranularityEnabled(false);
+//        YAxis rightAxis = lineChart.getAxisRight();
+//        rightAxis.setTextColor(Color.BLACK);
+//        rightAxis.setAxisMaximum(900);
+//        rightAxis.setAxisMinimum(-200);
+//        rightAxis.setDrawGridLines(false);
+//        rightAxis.setDrawZeroLine(false);
+//        rightAxis.setGranularityEnabled(false);
 
         setLineData(31, 50);
     }
@@ -283,15 +290,17 @@ public class DashboardFragment extends Fragment {
             lineChart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
-            set1 = new LineDataSet(values1, "DataSet 1");
+            set1 = new LineDataSet(values1, "");
 
             set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-            set1.setColor(ColorTemplate.getHoloBlue());
-            set1.setCircleColor(ColorTemplate.getHoloBlue());
+            set1.setColor(getResources().getColor(R.color.purple));
+            set1.setDrawValues(false);
+            set1.setDrawCircles(false);
+            set1.setCircleColor(getResources().getColor(R.color.purple));
             set1.setLineWidth(2f);
             set1.setCircleRadius(3f);
             set1.setFillAlpha(65);
-            set1.setFillColor(ColorTemplate.getHoloBlue());
+            set1.setFillColor(getResources().getColor(R.color.purple));
             set1.setHighLightColor(Color.rgb(244, 117, 117));
             set1.setDrawCircleHole(false);
             //set1.setFillFormatter(new MyFillFormatter(0f));
@@ -300,26 +309,30 @@ public class DashboardFragment extends Fragment {
             //set1.setCircleHoleColor(Color.WHITE);
 
             // create a dataset and give it a type
-            set2 = new LineDataSet(values2, "DataSet 2");
+            set2 = new LineDataSet(values2, "");
             set2.setAxisDependency(YAxis.AxisDependency.RIGHT);
-            set2.setColor(Color.RED);
-            set2.setCircleColor(Color.RED);
+            set2.setColor(getResources().getColor(R.color.red));
+            set2.setDrawCircles(false);
+            set2.setDrawValues(false);
+            set2.setCircleColor(getResources().getColor(R.color.red));
             set2.setLineWidth(2f);
             set2.setCircleRadius(3f);
             set2.setFillAlpha(65);
-            set2.setFillColor(Color.RED);
+            set2.setFillColor(getResources().getColor(R.color.red));
             set2.setDrawCircleHole(false);
             set2.setHighLightColor(Color.rgb(244, 117, 117));
             //set2.setFillFormatter(new MyFillFormatter(900f));
 
-            set3 = new LineDataSet(values3, "DataSet 3");
+            set3 = new LineDataSet(values3, "");
             set3.setAxisDependency(YAxis.AxisDependency.RIGHT);
-            set3.setColor(Color.YELLOW);
-            set3.setCircleColor(ColorTemplate.colorWithAlpha(Color.YELLOW, 200));
+            set3.setColor(getResources().getColor(R.color.yellow));
+            set3.setDrawCircles(false);
+            set3.setDrawValues(false);
+            set3.setCircleColor(getResources().getColor(R.color.yellow));
             set3.setLineWidth(2f);
             set3.setCircleRadius(3f);
             set3.setFillAlpha(65);
-            set3.setFillColor(ColorTemplate.colorWithAlpha(Color.YELLOW, 200));
+            set3.setFillColor(getResources().getColor(R.color.yellow));
             set3.setDrawCircleHole(false);
             set3.setHighLightColor(Color.rgb(244, 117, 117));
 

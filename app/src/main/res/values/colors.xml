@@ -7,9 +7,14 @@
     <color name="blue_light">#E9F1FB</color>
     <color name="text">#D1D3D4</color>
     <color name="grey">#EBEBEB</color>
+    <color name="grey2">#F5F5F5</color>
     <color name="text2">#9A9FA5</color>
     <color name="text3">#707070</color>
     <color name="bar_normal">#1C6455</color>
     <color name="bar_locked">#8FA2C6</color>
     <color name="bar_withdrawal">#75C9A2</color>
+    <color name="yellow_light">#FFF7E0</color>
+    <color name="yellow">#FFA900</color>
+    <color name="purple">#AD7EEA</color>
+    <color name="red">#EA6A60</color>
 </resources>
