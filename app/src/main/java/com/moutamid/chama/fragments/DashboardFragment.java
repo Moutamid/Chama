@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +27,14 @@ import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
+import com.moutamid.chama.models.TimelineModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 
 public class DashboardFragment extends Fragment {
@@ -48,7 +53,34 @@ public class DashboardFragment extends Fragment {
         setupLineChart();
         setupBarchart();
 
+        setupTimeline();
+
         return binding.getRoot();
+    }
+
+    private void setupTimeline() {
+        binding.timelineRC.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.timelineRC.setHasFixedSize(false);
+        ArrayList<TimelineModel> list = getTimelineList();
+        TimelineAdapter adapter = new TimelineAdapter(requireContext(), list);
+        binding.timelineRC.setAdapter(adapter);
+    }
+
+    private ArrayList<TimelineModel> getTimelineList() {
+        ArrayList<TimelineModel> list = new ArrayList<>();
+        list.add(new TimelineModel(UUID.randomUUID().toString(), "Chama Contribution",
+                "USD 140 credited in your account by @nickjones. Tap to see this in chama group.", new Date().getTime()));
+
+        list.add(new TimelineModel(UUID.randomUUID().toString(), "Stock flow alerts",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
+
+        list.add(new TimelineModel(UUID.randomUUID().toString(), "Reminder of Impending Meetings",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
+
+        list.add(new TimelineModel(UUID.randomUUID().toString(), "Training Or Functions",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
+
+        return list;
     }
 
     private void setupBarchart() {

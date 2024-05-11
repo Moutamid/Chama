@@ -29,6 +29,8 @@ public class GroupSelectionActivity extends AppCompatActivity {
         binding = ActivityGroupSelectionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.back.setOnClickListener(v -> finish());
+
         ArrayList<String> names = new ArrayList<String>();
 
         // Add names to the ArrayList

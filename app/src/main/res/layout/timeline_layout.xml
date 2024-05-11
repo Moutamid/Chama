@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="0dp"
     app:cardElevation="0dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="@color/white">
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,8 +17,8 @@
             android:id="@+id/leftside"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp">
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/clockIcon"
@@ -51,11 +51,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_toRightOf="@id/leftside">
+            android:layout_toRightOf="@id/leftside"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,29 +63,33 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Chama Contribution" />
+
                 <TextView
+                    android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Jul 21, 2022"
+                    android:layout_marginStart="5dp"
                     android:drawableStart="@drawable/calender"
                     android:drawablePadding="6dp"
-                    android:textSize="12sp"
-                    android:layout_marginStart="5dp"
-                    android:textColor="@color/text2" />
+                    android:text="Jul 21, 2022"
+                    android:textColor="@color/text2"
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="USD 140 credited in your account by @nickjones. Tap to see this in chama group. "
-                android:textSize="15sp"
                 android:layout_marginTop="5dp"
-                android:textColor="@color/text2" />
+                android:text="USD 140 credited in your account by @nickjones. Tap to see this in chama group."
+                android:textColor="@color/text2"
+                android:textSize="15sp" />
         </LinearLayout>
 
     </LinearLayout>

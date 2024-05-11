@@ -1,7 +1,9 @@
 package com.moutamid.chama.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -32,6 +34,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         binding.navView.setCheckedItem(R.id.home);
+
+        binding.search.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
+        disableMessageLayout();
+    }
+
+    public void enableMessageLayout(){
+        binding.toolbar.setTitle("Messages");
+        binding.toolbar.setSubtitle("");
+        binding.search.setVisibility(View.GONE);
+        binding.messageLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void disableMessageLayout(){
+        binding.toolbar.setTitle("Hi Charlie");
+        binding.toolbar.setSubtitle("Welcome back, lets explore what’s going on..");
+        binding.search.setVisibility(View.VISIBLE);
+        binding.messageLayout.setVisibility(View.GONE);
     }
 
     @Override

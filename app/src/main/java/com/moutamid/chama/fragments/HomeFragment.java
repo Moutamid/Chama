@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.moutamid.chama.R;
+import com.moutamid.chama.activities.MainActivity;
 import com.moutamid.chama.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -37,8 +38,12 @@ public class HomeFragment extends Fragment implements BottomNavigationView.OnNav
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
         if (id == R.id.dashboard) {
+            MainActivity activity = (MainActivity) requireActivity();
+            activity.disableMessageLayout();
             getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new DashboardFragment()).commit();
         } else if (id == R.id.chat) {
+            MainActivity activity = (MainActivity) requireActivity();
+            activity.enableMessageLayout();
             getParentFragmentManager().beginTransaction().replace(R.id.frameLayout, new MessageFragment()).commit();
         }
         return true;
