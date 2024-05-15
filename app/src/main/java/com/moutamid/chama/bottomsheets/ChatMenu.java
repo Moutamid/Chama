@@ -9,15 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.moutamid.chama.databinding.CreatePollBinding;
+import com.moutamid.chama.databinding.ChatMenuBinding;
 
-public class CreatePoll extends BottomSheetDialogFragment {
-    CreatePollBinding binding;
-
+public class ChatMenu extends BottomSheetDialogFragment {
+    ChatMenuBinding binding;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = CreatePollBinding.inflate(getLayoutInflater(),container, false);
+        binding = ChatMenuBinding.inflate(getLayoutInflater(), container, false);
 
         return binding.getRoot();
     }
