@@ -1,6 +1,7 @@
 package com.moutamid.chama.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.moutamid.chama.R;
+import com.moutamid.chama.activities.ChatActivity;
 import com.moutamid.chama.models.ChatModel;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +53,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.money.setText(money[1]);
         }
         Glide.with(context).load(model.image).placeholder(R.drawable.profile_icon).into(holder.image);
+
+        holder.itemView.setOnClickListener(v -> context.startActivity(new Intent(context, ChatActivity.class)));
+
     }
 
     @Override
