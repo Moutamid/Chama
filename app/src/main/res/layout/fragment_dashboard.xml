@@ -28,6 +28,7 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/dateFilterReports"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Last 7 days"
@@ -71,6 +72,7 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/dateFilterSavings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Last 6 Months"

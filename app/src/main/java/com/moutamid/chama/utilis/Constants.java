@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class Constants {
+    public static final String SAVING = "SAVING";
+    public static final String REPORT = "REPORT";
     public static void checkApp(Activity activity) {
         String appName = "sprachelernen";
 

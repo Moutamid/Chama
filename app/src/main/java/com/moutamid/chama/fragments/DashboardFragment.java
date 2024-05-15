@@ -29,8 +29,10 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.TimelineAdapter;
+import com.moutamid.chama.bottomsheets.DateFilter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
 import com.moutamid.chama.models.TimelineModel;
+import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +57,16 @@ public class DashboardFragment extends Fragment {
         setupBarchart();
 
         setupTimeline();
+
+        binding.dateFilterReports.setOnClickListener(v -> {
+            DateFilter dateFilter = new DateFilter(Constants.REPORT);
+            dateFilter.show(getChildFragmentManager(), dateFilter.getTag());
+        });
+
+        binding.dateFilterSavings.setOnClickListener(v -> {
+            DateFilter dateFilter = new DateFilter(Constants.SAVING);
+            dateFilter.show(getChildFragmentManager(), dateFilter.getTag());
+        });
 
         return binding.getRoot();
     }
