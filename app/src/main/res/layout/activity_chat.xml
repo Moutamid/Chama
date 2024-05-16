@@ -51,7 +51,48 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_above="@id/bottom"
+        android:id="@+id/chat" />
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/reminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottom"
+        android:layout_marginBottom="12dp"
+        android:layout_centerHorizontal="true"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="26dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/blue"
+        app:cardBackgroundColor="@color/blue_light">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/info" />
+            
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="Reminder of impending meetings"
+                android:textColor="@color/blue" />
+            
+        </LinearLayout>
+        
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
