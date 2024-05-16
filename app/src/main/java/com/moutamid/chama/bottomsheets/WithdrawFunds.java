@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.WithdrawFundBinding;
+import com.zhouyou.view.seekbar.SignSeekBar;
 
 public class WithdrawFunds extends BottomSheetDialogFragment {
 
@@ -23,6 +24,27 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = WithdrawFundBinding.inflate(getLayoutInflater(), container, false);
+
+        binding.toolbar.name.setText("Withdraw Money");
+        binding.toolbar.back.setOnClickListener(v -> dismiss());
+
+        binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
+            @Override
+            public void onProgressChanged(SignSeekBar signSeekBar, int progress, float progressFloat, boolean fromUser) {
+                binding.money.setText("USD " + progressFloat);
+                binding.money2.setText("USD " + progressFloat);
+            }
+
+            @Override
+            public void getProgressOnActionUp(SignSeekBar signSeekBar, int progress, float progressFloat) {
+
+            }
+
+            @Override
+            public void getProgressOnFinally(SignSeekBar signSeekBar, int progress, float progressFloat, boolean fromUser) {
+
+            }
+        });
 
         return binding.getRoot();
     }
