@@ -32,5 +32,7 @@ public class ChatActivity extends AppCompatActivity {
             chatMenu.show(getSupportFragmentManager(), chatMenu.getTag());
         });
 
+
+
     }
 }

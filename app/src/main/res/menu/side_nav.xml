@@ -44,6 +44,7 @@
         android:background="@drawable/nav_item_selected" />
 
     <item
+        android:id="@+id/logout"
         android:icon="@drawable/logout"
         android:title="Logout"
         android:background="@drawable/nav_item_selected" />

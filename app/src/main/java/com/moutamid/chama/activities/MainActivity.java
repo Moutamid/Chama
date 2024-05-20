@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.moutamid.chama.fragments.HomeFragment;
 import com.moutamid.chama.R;
@@ -58,8 +59,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = menuItem.getItemId();
         if (id == R.id.home){
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        } else if (id == R.id.logout){
+            new MaterialAlertDialogBuilder(this)
+                    .setMessage("Are you sure you want to logout?")
+                    .setPositiveButton("Yes", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
         }
-
         return false;
     }
 }
