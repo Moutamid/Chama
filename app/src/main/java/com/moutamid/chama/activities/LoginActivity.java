@@ -163,14 +163,14 @@ public class LoginActivity extends AppCompatActivity {
         Constants.databaseReference().child(Constants.USER).child(user.getUid()).get()
                 .addOnSuccessListener(snapshot -> {
                     Constants.dismissDialog();
+                    UserModel userDetails = new UserModel();
+                    userDetails.id = user.getUid();
+                    userDetails.email = user.getEmail();
+                    userDetails.name = user.getDisplayName();
+                    userDetails.image = user.getPhotoUrl().toString();
+                    userDetails.phoneNum = user.getPhoneNumber();
+                    Stash.put(Constants.STASH_USER, userDetails);
                     if (!snapshot.exists()) {
-                        UserModel userDetails = new UserModel();
-                        userDetails.id = user.getUid();
-                        userDetails.email = user.getEmail();
-                        userDetails.name = user.getDisplayName();
-                        userDetails.image = user.getPhotoUrl().toString();
-                        userDetails.phoneNum = user.getPhoneNumber();
-                        Stash.put(Constants.STASH_USER, userDetails);
                         Constants.databaseReference().child(Constants.USER).child(user.getUid())
                                 .setValue(userDetails).addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
