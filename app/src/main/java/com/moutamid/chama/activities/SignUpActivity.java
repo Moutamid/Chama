@@ -8,11 +8,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivitySignUpBinding;
@@ -29,7 +31,7 @@ public class SignUpActivity extends AppCompatActivity {
     ArrayAdapter<String> gender;
     String[] genderList = {"Male", "Female", "Other"};
     Uri imageUri;
-
+    private static final int PICK_FROM_GALLERY = 1001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +61,11 @@ public class SignUpActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
-
+        binding.profile.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(Intent.createChooser(intent, ""), PICK_FROM_GALLERY);
+        });
     }
 
     private void uploadImage() {
@@ -84,7 +90,8 @@ public class SignUpActivity extends AppCompatActivity {
             userDetails.email = binding.email.getEditText().getText().toString();
             userDetails.name = binding.firstName.getEditText().getText().toString().trim() + " " + binding.lastName.getEditText().getText().toString().trim();
             userDetails.image = link;
-            userDetails.phoneNum = binding.ccp.getSelectedCountryCodeWithPlus() + binding.phone.getText().toString().trim();
+            userDetails.countryCode = binding.ccp.getSelectedCountryCodeWithPlus();
+            userDetails.phoneNum = binding.phone.getText().toString().trim();
             userDetails.password = binding.password.getEditText().getText().toString();
             userDetails.gender = binding.gender.getEditText().getText().toString();
             Constants.databaseReference().child(Constants.USER).child(userDetails.id).setValue(userDetails)
@@ -107,8 +114,27 @@ public class SignUpActivity extends AppCompatActivity {
         super.onResume();
         Constants.initDialog(this);
     }
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            Glide.with(this).load(imageUri).placeholder(R.drawable.profile_icon).into(binding.profile);
+        }
+    }
     private boolean valid() {
+        if (binding.firstName.getEditText().getText().toString().isEmpty()) {
+            Toast.makeText(this, "Enter First Name is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (binding.phone.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Phone Number is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (binding.gender.getEditText().getText().toString().isEmpty()) {
+            Toast.makeText(this, "Gender is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (binding.email.getEditText().getText().toString().isEmpty()) {
             Toast.makeText(this, "Email is empty", Toast.LENGTH_SHORT).show();
             return false;

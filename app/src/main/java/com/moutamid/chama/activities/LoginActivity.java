@@ -170,8 +170,6 @@ public class LoginActivity extends AppCompatActivity {
                         userDetails.name = user.getDisplayName();
                         userDetails.image = user.getPhotoUrl().toString();
                         userDetails.phoneNum = user.getPhoneNumber();
-                        userDetails.password = "";
-                        userDetails.gender = "";
                         Stash.put(Constants.STASH_USER, userDetails);
                         Constants.databaseReference().child(Constants.USER).child(user.getUid())
                                 .setValue(userDetails).addOnCompleteListener(task -> {
