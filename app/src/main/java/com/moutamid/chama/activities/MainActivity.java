@@ -65,9 +65,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = menuItem.getItemId();
         if (id == R.id.home) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-        }if (id == R.id.product) {
+        }
+        if (id == R.id.product) {
             startActivity(new Intent(this, ProductsActivity.class));
-        }if (id == R.id.setting) {
+        }
+        if (id == R.id.services) {
+            startActivity(new Intent(this, ServicesActivity.class));
+        }
+        if (id == R.id.manageUser) {
+            startActivity(new Intent(this, ManageUsersActivity.class));
+        }
+        if (id == R.id.sales) {
+            startActivity(new Intent(this, SalesActivity.class));
+        }
+        if (id == R.id.setting) {
             startActivity(new Intent(this, SettingActivity.class));
         } else if (id == R.id.logout) {
             new MaterialAlertDialogBuilder(this)

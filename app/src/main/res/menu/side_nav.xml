@@ -6,47 +6,48 @@
 
     <item
         android:id="@+id/home"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/home"
-        android:title="Home"
-        android:background="@drawable/nav_item_selected" />
-
+        android:title="Home" />
     <item
         android:id="@+id/product"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/box"
-        android:title="Product"
-        android:background="@drawable/nav_item_selected" />
+        android:title="Product" />
     <item
+        android:id="@+id/services"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/bag"
-        android:title="Services"
-        android:background="@drawable/nav_item_selected" />
+        android:title="Services" />
     <item
+        android:id="@+id/savings"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/piggy_bank_solid"
-        android:title="Savings"
-        android:background="@drawable/nav_item_selected" />
-
+        android:title="Savings" />
     <item
+        android:id="@+id/expenses"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/credit_card"
-        android:title="Expenses"
-        android:background="@drawable/nav_item_selected" />
+        android:title="Expenses" />
     <item
+        android:id="@+id/sales"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/statics"
-        android:title="Sales"
-        android:background="@drawable/nav_item_selected" />
-
+        android:title="Sales" />
     <item
+        android:id="@+id/manageUser"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/manage_accounts"
-        android:title="Manage User"
-        android:background="@drawable/nav_item_selected" />
+        android:title="Manage User" />
     <item
         android:id="@+id/setting"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/setting"
-        android:title="Setting"
-        android:background="@drawable/nav_item_selected" />
-
+        android:title="Setting" />
     <item
         android:id="@+id/logout"
+        android:background="@drawable/nav_item_selected"
         android:icon="@drawable/logout"
-        android:title="Logout"
-        android:background="@drawable/nav_item_selected" />
+        android:title="Logout" />
 
 </menu>
