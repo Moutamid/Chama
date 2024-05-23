@@ -12,6 +12,12 @@ import android.view.Window;
 import androidx.appcompat.app.AlertDialog;
 
 import com.fxn.stash.Stash;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.moutamid.chama.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,10 +31,41 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class Constants {
+    public static Dialog dialog;
+    public static final String STASH_USER = "STASH_USER";
+    public static final String USER = "USER";
     public static final String SAVING = "SAVING";
     public static final String REPORT = "REPORT";
+    public static void initDialog(Context context) {
+        dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.loading_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setCancelable(false);
+    }
+
+    public static void showDialog() {
+        dialog.show();
+    }
+
+    public static void dismissDialog() {
+        dialog.dismiss();
+    }
+
+    public static FirebaseAuth auth() {
+        return FirebaseAuth.getInstance();
+    }
+
+    public static DatabaseReference databaseReference() {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("chama");
+        db.keepSynced(true);
+        return db;
+    }
+    public static StorageReference storageReference() {
+        return FirebaseStorage.getInstance().getReference().child("chama");
+    }
     public static void checkApp(Activity activity) {
-        String appName = "sprachelernen";
+        String appName = "chama";
 
         new Thread(() -> {
             URL google = null;

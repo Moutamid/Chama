@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.moutamid.chama.R;
+import com.moutamid.chama.utilis.Constants;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -26,8 +27,13 @@ public class SplashActivity extends AppCompatActivity {
         });
 
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-            finish();
+            if (Constants.auth().getCurrentUser() != null) {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                finish();
+            } else {
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                finish();
+            }
         }, 2000);
 
     }

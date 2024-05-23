@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -39,6 +41,15 @@ dependencies {
     implementation(libs.signseekbar)
     implementation(libs.circle.imageview)
     implementation(libs.hbb20.ccp)
+
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage")
+
+    implementation(libs.play.services.auth)
 
     implementation(libs.appcompat)
     implementation(libs.material)
