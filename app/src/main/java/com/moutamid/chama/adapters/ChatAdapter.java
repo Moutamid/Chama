@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.moutamid.chama.R;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.utilis.Constants;
@@ -54,6 +55,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
         MessageModel model = list.get(holder.getAbsoluteAdapterPosition());
         holder.message.setText(model.message);
         holder.date.setText(new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(model.timestamp));
+        Glide.with(context).load(model.image).placeholder(R.drawable.profile_icon).into(holder.profile_icon);
     }
 
     @Override

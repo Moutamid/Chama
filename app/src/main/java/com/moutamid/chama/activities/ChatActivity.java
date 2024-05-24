@@ -6,6 +6,8 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -14,7 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.moutamid.chama.R;
+import com.moutamid.chama.adapters.ChatAdapter;
 import com.moutamid.chama.bottomsheets.ChatMenu;
 import com.moutamid.chama.databinding.ActivityChatBinding;
 import com.moutamid.chama.models.ChatModel;
@@ -22,6 +28,8 @@ import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +38,8 @@ import java.util.UUID;
 public class ChatActivity extends AppCompatActivity {
     ActivityChatBinding binding;
     ChatModel chatModel;
+    ArrayList<MessageModel> list;
+    ChatAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,9 +58,45 @@ public class ChatActivity extends AppCompatActivity {
 
         binding.name.setText(chatModel.name);
         Glide.with(this).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.image);
-
+        list = new ArrayList<>();
         binding.chat.setLayoutManager(new LinearLayoutManager(this));
         binding.chat.setHasFixedSize(false);
+
+        adapter = new ChatAdapter(this, list);
+        binding.chat.setAdapter(adapter);
+
+        Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id)
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                        if (snapshot.exists()) {
+                            MessageModel messageModel = snapshot.getValue(MessageModel.class);
+                            list.add(messageModel);
+                            list.sort(Comparator.comparingLong(o -> o.timestamp));
+                            adapter.notifyItemInserted(list.size() - 1);
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
         binding.clip.setOnClickListener(v -> {
             ChatMenu chatMenu = new ChatMenu(chatModel);
@@ -65,7 +111,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().isEmpty()){
+                if (s.toString().isEmpty()) {
                     binding.clip.setVisibility(View.VISIBLE);
                 } else {
                     binding.clip.setVisibility(View.GONE);
@@ -79,7 +125,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         binding.send.setOnClickListener(v -> {
-            if (!binding.message.getText().toString().isEmpty()){
+            if (!binding.message.getText().toString().isEmpty()) {
                 sendMessage();
             }
         });
