@@ -14,10 +14,15 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.SendMoneyBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.zhouyou.view.seekbar.SignSeekBar;
 
 public class SendMoney extends BottomSheetDialogFragment {
     SendMoneyBinding binding;
+    ChatModel chatModel;
+    public SendMoney(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
 
     @Nullable
     @Override

@@ -14,9 +14,15 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.ChatMenuBinding;
+import com.moutamid.chama.models.ChatModel;
 
 public class ChatMenu extends BottomSheetDialogFragment {
     ChatMenuBinding binding;
+    ChatModel chatModel;
+    public ChatMenu(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -24,25 +30,24 @@ public class ChatMenu extends BottomSheetDialogFragment {
 
         binding.createPol.setOnClickListener(v -> {
             dismiss();
-            CreatePoll createPoll = new CreatePoll();
+            CreatePoll createPoll = new CreatePoll(chatModel);
             createPoll.show(getParentFragmentManager(), createPoll.getTag());
         });
 
         binding.sendMoney.setOnClickListener(v -> {
             dismiss();
-            SendMoney sendMoney = new SendMoney();
+            SendMoney sendMoney = new SendMoney(chatModel);
             sendMoney.show(getParentFragmentManager(), sendMoney.getTag());
         });
 
         binding.withdrawFund.setOnClickListener(v -> {
             dismiss();
-            WithdrawFunds withdrawFunds = new WithdrawFunds();
+            WithdrawFunds withdrawFunds = new WithdrawFunds(chatModel);
             withdrawFunds.show(getParentFragmentManager(), withdrawFunds.getTag());
         });
 
         binding.sendPicture.setOnClickListener(v -> {
             dismiss();
-
         });
 
         return binding.getRoot();

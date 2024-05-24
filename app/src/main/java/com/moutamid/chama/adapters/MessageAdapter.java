@@ -13,9 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.fxn.stash.Stash;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.ChatActivity;
 import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.utilis.Constants;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         holder.name.setText(model.name);
         holder.message.setText(model.lastMessage);
-        holder.date.setText(new SimpleDateFormat("dd MM", Locale.getDefault()).format(model.timestamp));
+        holder.date.setText(Constants.getTime(model.timestamp));
 
         if (model.isMoneyShared){
             holder.moneySharedLayout.setVisibility(View.VISIBLE);
@@ -54,7 +56,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
         Glide.with(context).load(model.image).placeholder(R.drawable.profile_icon).into(holder.image);
 
-        holder.itemView.setOnClickListener(v -> context.startActivity(new Intent(context, ChatActivity.class)));
+        holder.itemView.setOnClickListener(v -> {
+            Stash.put(Constants.CHATS, model);
+            context.startActivity(new Intent(context, ChatActivity.class));
+        });
 
     }
 

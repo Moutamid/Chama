@@ -16,10 +16,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.CreatePollBinding;
+import com.moutamid.chama.models.ChatModel;
 
 public class CreatePoll extends BottomSheetDialogFragment {
     CreatePollBinding binding;
     int pos = 0;
+    ChatModel chatModel;
+    public CreatePoll(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
 
     @Nullable
     @Override

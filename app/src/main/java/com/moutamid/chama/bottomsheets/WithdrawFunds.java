@@ -14,11 +14,16 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.WithdrawFundBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.zhouyou.view.seekbar.SignSeekBar;
 
 public class WithdrawFunds extends BottomSheetDialogFragment {
 
     WithdrawFundBinding binding;
+    ChatModel chatModel;
+    public WithdrawFunds(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
 
     @Nullable
     @Override

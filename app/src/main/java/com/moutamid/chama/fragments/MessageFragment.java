@@ -1,18 +1,27 @@
 package com.moutamid.chama.fragments;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
+import com.moutamid.chama.activities.GroupSelectionActivity;
 import com.moutamid.chama.adapters.MessageAdapter;
 import com.moutamid.chama.databinding.FragmentMessageBinding;
 import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +30,21 @@ import java.util.UUID;
 
 public class MessageFragment extends Fragment {
     FragmentMessageBinding binding;
+    ArrayList<ChatModel> list;
+    Context mContext;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
     public MessageFragment() {
         // Required empty public constructor
     }
@@ -30,26 +54,44 @@ public class MessageFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentMessageBinding.inflate(getLayoutInflater(), container, false);
 
-        binding.create.setOnClickListener(v -> createMessages());
+        binding.create.setOnClickListener(v -> startActivity(new Intent(requireContext(), GroupSelectionActivity.class)));
 
-        binding.messagesRC.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.messagesRC.setLayoutManager(new LinearLayoutManager(mContext));
         binding.messagesRC.setHasFixedSize(false);
-
+        Constants.showDialog();
+        getMessages();
         return binding.getRoot();
     }
 
-    private void createMessages() {
-        binding.noLayout.setVisibility(View.GONE);
-        binding.messagesRC.setVisibility(View.VISIBLE);
+    private void getMessages() {
+        list = new ArrayList<>();
 
-        ArrayList<ChatModel> list =  new ArrayList<>();
-        list.add(new ChatModel(UUID.randomUUID().toString(), "Alexa", "", getString(R.string.lorem), "You got, USD 250", true, false, new Date().getTime()));
-        list.add(new ChatModel(UUID.randomUUID().toString(), "Nick Jones", "", getString(R.string.lorem), "You shared, USD 20", true, false, new Date().getTime()));
-        list.add(new ChatModel(UUID.randomUUID().toString(), "James", "", getString(R.string.lorem), "", false, false, new Date().getTime()));
-        list.add(new ChatModel(UUID.randomUUID().toString(), "Jeema", "", getString(R.string.lorem), "You shared, USD 350", true, false, new Date().getTime()));
-        list.add(new ChatModel(UUID.randomUUID().toString(), "Chama Group", "", getString(R.string.lorem), "", false, true, new Date().getTime()));
+        Constants.databaseReference().child(Constants.CHATS)
+                .child(Constants.auth().getCurrentUser().getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            list.clear();
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                ChatModel model = dataSnapshot.getValue(ChatModel.class);
+                                list.add(model);
+                            }
+                            if (!list.isEmpty()){
+                                binding.noLayout.setVisibility(View.GONE);
+                                binding.messagesRC.setVisibility(View.VISIBLE);
+                            }
+                            MessageAdapter adapter = new MessageAdapter(mContext, list);
+                            binding.messagesRC.setAdapter(adapter);
+                        }
+                        Constants.dismissDialog();
+                    }
 
-        MessageAdapter adapter = new MessageAdapter(requireContext(), list);
-        binding.messagesRC.setAdapter(adapter);
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Constants.dismissDialog();
+                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

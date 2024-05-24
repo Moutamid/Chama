@@ -20,6 +20,10 @@
         android:theme="@style/Theme.Chama"
         tools:targetApi="31">
         <activity
+            android:name=".activities.GroupSettingActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activities.ServicesActivity"
             android:exported="false" />
         <activity

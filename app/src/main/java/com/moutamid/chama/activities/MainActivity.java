@@ -41,7 +41,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding.navView.setCheckedItem(R.id.home);
 
         binding.search.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
+        binding.addGroup.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
+        binding.addPeople.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
         disableMessageLayout();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Constants.initDialog(this);
     }
 
     public void enableMessageLayout() {

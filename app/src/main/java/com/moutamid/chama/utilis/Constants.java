@@ -28,14 +28,17 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 public class Constants {
     public static Dialog dialog;
     public static final String STASH_USER = "STASH_USER";
     public static final String USER = "USER";
+    public static final String CHATS = "CHATS";
     public static final String SAVING = "SAVING";
     public static final String REPORT = "REPORT";
+    public static final String MESSAGES = "MESSAGES";
     public static void initDialog(Context context) {
         dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -64,6 +67,33 @@ public class Constants {
     public static StorageReference storageReference() {
         return FirebaseStorage.getInstance().getReference().child("chama");
     }
+
+    public static String getTime(long timestamp) {
+        Calendar calendar = Calendar.getInstance();
+        long currentTime = System.currentTimeMillis();
+        calendar.setTimeInMillis(timestamp);
+        if (isSameWeek(currentTime, timestamp)) {
+            return isSameDay(currentTime, timestamp) ?
+                    new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(calendar.getTime()) :
+                    new SimpleDateFormat("dd MMM", Locale.getDefault()).format(calendar.getTime());
+        } else {
+            return new SimpleDateFormat("EEE", Locale.getDefault()).format(calendar.getTime());
+        }
+    }
+
+    private static boolean isSameDay(long timestamp1, long timestamp2) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+        return sdf.format(timestamp1).equals(sdf.format(timestamp2));
+    }
+
+    private static boolean isSameWeek(long timestamp1, long timestamp2) {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTimeInMillis(timestamp1);
+        cal2.setTimeInMillis(timestamp2);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.WEEK_OF_YEAR) == cal2.get(Calendar.WEEK_OF_YEAR);
+    }
+
     public static void checkApp(Activity activity) {
         String appName = "chama";
 

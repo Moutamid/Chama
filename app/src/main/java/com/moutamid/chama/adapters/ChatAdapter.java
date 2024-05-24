@@ -1,15 +1,25 @@
 package com.moutamid.chama.adapters;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.moutamid.chama.R;
 import com.moutamid.chama.models.MessageModel;
+import com.moutamid.chama.utilis.Constants;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
     Context context;
@@ -26,18 +36,24 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        return list.get(position).senderID.equals(Constants.auth().getCurrentUser().getUid()) ? CHAT_RIGHT : CHAT_LEFT;
     }
 
     @NonNull
     @Override
     public ChatVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        if (viewType == CHAT_LEFT){
+            return new ChatVH(LayoutInflater.from(context).inflate(R.layout.chat_left, parent, false));
+        } else{
+            return new ChatVH(LayoutInflater.from(context).inflate(R.layout.chat_right, parent, false));
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChatVH holder, int position) {
-
+        MessageModel model = list.get(holder.getAbsoluteAdapterPosition());
+        holder.message.setText(model.message);
+        holder.date.setText(new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(model.timestamp));
     }
 
     @Override
@@ -46,8 +62,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
     }
 
     public class ChatVH extends RecyclerView.ViewHolder{
+        TextView message, date;
+        CircleImageView profile_icon;
         public ChatVH(@NonNull View itemView) {
             super(itemView);
+            profile_icon = itemView.findViewById(R.id.profile);
+            message = itemView.findViewById(R.id.message);
+            date = itemView.findViewById(R.id.date);
         }
     }
 

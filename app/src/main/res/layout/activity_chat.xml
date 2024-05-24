@@ -9,23 +9,24 @@
     tools:context=".activities.ChatActivity">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toolbar"
-        app:strokeWidth="0dp"
-        app:cardElevation="8dp"
-        app:cardCornerRadius="0dp"
         android:layout_alignParentTop="true"
-        app:cardBackgroundColor="@color/white">
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="12dp">
 
             <ImageView
+                android:id="@+id/back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/arrow_back" />
@@ -38,71 +39,71 @@
                 android:src="@drawable/profile_icon" />
 
             <TextView
+                android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Name"
-                android:layout_weight="1"
-                android:textStyle="bold"
                 android:layout_marginStart="10dp"
+                android:layout_weight="1"
                 android:textSize="18sp"
-                android:id="@+id/name" />
+                android:textStyle="bold"
+                tools:text="Name" />
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
         android:layout_above="@id/bottom"
-        android:id="@+id/chat" />
+        android:layout_below="@id/toolbar" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/reminder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom"
-        android:layout_marginBottom="12dp"
         android:layout_centerHorizontal="true"
-        app:cardElevation="0dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/blue_light"
         app:cardCornerRadius="26dp"
-        app:strokeWidth="1dp"
+        app:cardElevation="0dp"
         app:strokeColor="@color/blue"
-        app:cardBackgroundColor="@color/blue_light">
-        
+        app:strokeWidth="1dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/info" />
-            
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:text="Reminder of impending meetings"
                 android:textColor="@color/blue" />
-            
+
         </LinearLayout>
-        
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/bottom"
-        app:strokeWidth="0dp"
-        app:cardElevation="8dp"
-        app:cardCornerRadius="0dp"
         android:layout_alignParentBottom="true"
-        app:cardBackgroundColor="@color/white">
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -117,61 +118,63 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:layout_weight="1"
                     android:background="@drawable/round"
-                    android:layout_weight="1">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <EditText
+                        android:id="@+id/message"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@color/transprent"
                         android:hint="Your Message"
-                        android:padding="15dp"
-                        android:background="@color/transprent" />
+                        android:padding="15dp" />
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/clip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        app:cardBackgroundColor="@color/transprent"
                         app:cardCornerRadius="100dp"
                         app:cardElevation="0dp"
-                        android:layout_marginStart="10dp"
-                        app:strokeWidth="0dp"
-                        app:cardBackgroundColor="@color/transprent">
+                        app:strokeWidth="0dp">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/clip"
-                            android:layout_margin="15dp" />
+                            android:layout_margin="15dp"
+                            android:src="@drawable/clip" />
 
                     </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/send"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    app:cardBackgroundColor="@color/blue"
                     app:cardCornerRadius="100dp"
                     app:cardElevation="0dp"
-                    android:layout_marginStart="10dp"
-                    app:strokeWidth="0dp"
-                    app:cardBackgroundColor="@color/blue">
+                    app:strokeWidth="0dp">
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/send"
-                        android:layout_margin="15dp" />
+                        android:layout_margin="15dp"
+                        android:src="@drawable/send" />
 
                 </com.google.android.material.card.MaterialCardView>
 
