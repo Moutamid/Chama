@@ -1,7 +1,9 @@
 package com.moutamid.chama.fragments;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -48,7 +51,7 @@ public class MessageFragment extends Fragment {
     public MessageFragment() {
         // Required empty public constructor
     }
-
+    Dialog dialog;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -56,16 +59,21 @@ public class MessageFragment extends Fragment {
 
         binding.create.setOnClickListener(v -> startActivity(new Intent(requireContext(), GroupSelectionActivity.class)));
 
+        dialog = new Dialog(mContext);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.loading_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setCancelable(false);
+        dialog.show();
+
         binding.messagesRC.setLayoutManager(new LinearLayoutManager(mContext));
         binding.messagesRC.setHasFixedSize(false);
-        Constants.showDialog();
         getMessages();
         return binding.getRoot();
     }
 
     private void getMessages() {
         list = new ArrayList<>();
-
         Constants.databaseReference().child(Constants.CHATS)
                 .child(Constants.auth().getCurrentUser().getUid())
                 .addValueEventListener(new ValueEventListener() {
@@ -84,12 +92,12 @@ public class MessageFragment extends Fragment {
                             MessageAdapter adapter = new MessageAdapter(mContext, list);
                             binding.messagesRC.setAdapter(adapter);
                         }
-                        Constants.dismissDialog();
+                        dialog.dismiss();
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Constants.dismissDialog();
+                        dialog.dismiss();
                         Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });

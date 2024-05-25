@@ -4,23 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
-    android:layout_marginEnd="5dp"
-    android:gravity="bottom|end">
+    android:layout_marginStart="5dp"
+    android:gravity="bottom">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/profile_icon" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="5dp"
-        android:background="@drawable/chat_right">
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="25dp"
+        android:background="@drawable/chat_left">
 
-        <TextView
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:text="@string/lorem"
-            android:id="@+id/message" />
+            android:adjustViewBounds="true"
+            android:id="@+id/image" />
 
         <TextView
             android:layout_width="match_parent"
@@ -32,12 +39,5 @@
             android:id="@+id/date" />
 
     </LinearLayout>
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile"
-        android:layout_width="32sp"
-        android:layout_height="32sp"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/profile_icon" />
 
 </LinearLayout>

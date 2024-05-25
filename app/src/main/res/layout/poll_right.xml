@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,15 +20,24 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lorem"
+            tools:text="@string/lorem"
             android:id="@+id/message" />
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content" >
+
+
+        </RadioGroup>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="9:30 am"
+            tools:text="9:30 am"
             android:gravity="end"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="5dp"
             android:textColor="@color/text2"
             android:id="@+id/date" />
 

@@ -1,8 +1,10 @@
 package com.moutamid.chama.bottomsheets;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,19 +16,27 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.ChatMenuBinding;
+import com.moutamid.chama.listener.ImageSelectionListener;
 import com.moutamid.chama.models.ChatModel;
 
 public class ChatMenu extends BottomSheetDialogFragment {
     ChatMenuBinding binding;
     ChatModel chatModel;
-    public ChatMenu(ChatModel chatModel) {
+    ImageSelectionListener imageSelectionListener;
+
+    public ChatMenu(ChatModel chatModel, ImageSelectionListener imageSelectionListener) {
         this.chatModel = chatModel;
+        this.imageSelectionListener = imageSelectionListener;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = ChatMenuBinding.inflate(getLayoutInflater(), container, false);
+
+        if (!chatModel.isGroup){
+            binding.createPol.setVisibility(View.GONE);
+        }
 
         binding.createPol.setOnClickListener(v -> {
             dismiss();
@@ -48,6 +58,7 @@ public class ChatMenu extends BottomSheetDialogFragment {
 
         binding.sendPicture.setOnClickListener(v -> {
             dismiss();
+            imageSelectionListener.imagePick();
         });
 
         return binding.getRoot();

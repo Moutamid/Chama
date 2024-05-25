@@ -42,6 +42,10 @@ public class CreatePoll extends BottomSheetDialogFragment {
             addOptions(i);
         }
 
+        binding.send.setOnClickListener(v -> {
+
+        });
+
         return binding.getRoot();
     }
 
