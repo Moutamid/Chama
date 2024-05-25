@@ -100,7 +100,22 @@ public class ChatActivity extends AppCompatActivity {
 
                     @Override
                     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                        if (snapshot.exists()) {
+                            MessageModel messageModel = snapshot.getValue(MessageModel.class);
+                            int index =0;
+                            for (int i = 0; i < list.size(); i++) {
+                                MessageModel l = list.get(i);
+                                if (messageModel.id.equals(l.id)){
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            list.remove(index);
+                            list.add(index, messageModel);
+                            list.sort(Comparator.comparingLong(o -> o.timestamp));
+                            adapter.notifyItemChanged(index);
+                            binding.chat.scrollToPosition(list.size() - 1);
+                        }
                     }
 
                     @Override
@@ -232,7 +247,7 @@ public class ChatActivity extends AppCompatActivity {
         String m;
 
         if (chatModel.isGroup) {
-            m = message.isEmpty() ? stashUser.name + " Sent an Image" : stashUser.name + " " + message;
+            m = stashUser.name + ": " + (message.isEmpty() ? "Sent an Image" : message);
         } else {
             m = message.isEmpty() ? "Sent an Image" : message;
         }
@@ -278,11 +293,13 @@ public class ChatActivity extends AppCompatActivity {
         model.image = stashUser.image;
         model.message = binding.message.getText().toString().trim();
 
+        String m = chatModel.isGroup ? stashUser.name + ": " + model.message : model.message;
+
         Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id).child(model.id)
                 .setValue(model).addOnSuccessListener(unused -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("timestamp", model.timestamp);
-                    map.put("lastMessage", model.message);
+                    map.put("lastMessage", m);
                     Constants.databaseReference().child(Constants.CHATS).child(stashUser.id).child(chatModel.id).updateChildren(map)
                             .addOnSuccessListener(unused1 -> {
                                 if (chatModel.isGroup) {

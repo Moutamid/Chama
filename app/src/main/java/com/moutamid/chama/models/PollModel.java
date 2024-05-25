@@ -7,5 +7,5 @@ public class PollModel {
     public String question;
     public List<String> options;
     public String senderId;
-    public Map<String, Integer> votes;
+    public Votes votes;
 }
