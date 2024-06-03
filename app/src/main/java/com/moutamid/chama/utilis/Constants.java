@@ -81,12 +81,12 @@ public class Constants {
         }
     }
 
-    private static boolean isSameDay(long timestamp1, long timestamp2) {
+    public static boolean isSameDay(long timestamp1, long timestamp2) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         return sdf.format(timestamp1).equals(sdf.format(timestamp2));
     }
 
-    private static boolean isSameWeek(long timestamp1, long timestamp2) {
+    public static boolean isSameWeek(long timestamp1, long timestamp2) {
         Calendar cal1 = Calendar.getInstance();
         Calendar cal2 = Calendar.getInstance();
         cal1.setTimeInMillis(timestamp1);

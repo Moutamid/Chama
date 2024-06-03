@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card"
-    app:strokeWidth="0dp"
-    app:cardElevation="0dp"
-    app:cardCornerRadius="0dp"
-    app:cardBackgroundColor="@color/transprent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,20 +16,36 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <com.google.android.material.radiobutton.MaterialRadioButton
+            <TextView
                 android:id="@+id/option"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="12dp"
-                android:clickable="false"
-                tools:text="Hello" />
+                android:text="Option A" />
 
-            <TextView
-                android:id="@+id/counter"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+2 more"
+                    android:visibility="gone"
+                    android:textColor="@color/text2"
+                    android:textStyle="bold"
+                    android:id="@+id/countVote" />
+
+                <RelativeLayout
+                    android:id="@+id/imagesLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp">
+
+                </RelativeLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -42,8 +53,8 @@
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
             android:progress="0"
+            android:layout_marginTop="8dp"
             app:indicatorDirectionLinear="startToEnd"
             app:indicatorTrackGapSize="0dp"
             app:trackCornerRadius="100dp"
@@ -51,4 +62,4 @@
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

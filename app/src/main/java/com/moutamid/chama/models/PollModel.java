@@ -8,4 +8,7 @@ public class PollModel {
     public List<String> options;
     public String senderId;
     public Votes votes;
+
+    public PollModel() {
+    }
 }

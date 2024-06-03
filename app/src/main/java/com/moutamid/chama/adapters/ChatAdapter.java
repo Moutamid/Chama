@@ -1,6 +1,7 @@
 package com.moutamid.chama.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
+    private static final String TAG = "ChatAdapter";
     Context context;
     ArrayList<MessageModel> list;
     public static final int CHAT_LEFT = 1;
@@ -124,17 +126,40 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
                 progressBar.setMax(pollModel.options.size());
                 radio.setText(options);
 
+                int value = pollModel.votes.votes.get(options.replace(" ", "_"));
+                counter.setText(String.valueOf(value));
+                progressBar.setProgress(value, true);
+                Constants.databaseReference().child(Constants.MESSAGES).child(model.chatID).child(model.id).child("pollModel").child("votes").child("voters")
+                        .child(options.replace(" ", "_")).child(Constants.auth().getCurrentUser().getUid())
+                        .get().addOnSuccessListener(dataSnapshot -> {
+                            if (dataSnapshot.exists()) {
+                                global = radio;
+                                globalCounter = counter;
+                                globalProgressBar = progressBar;
+                                radio.setChecked(true);
+                            } else {
+                                radio.setChecked(false);
+                            }
+                        });
+
                 card.setOnClickListener(v -> {
                     radio.setChecked(!radio.isChecked());
                     if (global != null && radio != global) {
+                        Log.d(TAG, "onBindViewHolder:  GLOBAL");
                         global.setChecked(false);
                         int c = Integer.parseInt(globalCounter.getText().toString()) - 1;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF C " + c );
                         if (c < 0) c = 0;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF AFTER C " + c );
                         globalCounter.setText(String.valueOf(c));
                         globalProgressBar.setProgress(c, true);
                         Map<String, Object> votes = new HashMap<>();
-                        int vote = pollModel.votes.votes.get(options.replace(" ", "_"));
-                        votes.put(radio.getText().toString().replace(" ", "_"), vote - 1);
+                        int vote = pollModel.votes.votes.get(global.getText().toString().trim().replace(" ", "_"));
+                        Log.d(TAG, "onBindViewHolder: VALUE OF VOTE " + vote );
+                        Log.d(TAG, "onBindViewHolder: VALUE OF options " + global.getText().toString().trim() );
+                        vote = vote <= 0 ? 0 : vote - 1;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF AFTER VOTE " + vote );
+                        votes.put(global.getText().toString().replace(" ", "_"), vote);
                         Constants.databaseReference().child(Constants.MESSAGES).child(model.chatID).child(model.id).child("pollModel").child("votes").child("votes")
                                 .updateChildren(votes);
                         String voter = Constants.auth().getCurrentUser().getUid();
@@ -143,12 +168,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
                     }
                     int count;
                     if (radio.isChecked()) {
+                        Log.d(TAG, "onBindViewHolder: CHECKED");
                         count = Integer.parseInt(counter.getText().toString()) + 1;
+
+                        Log.d(TAG, "onBindViewHolder: VALUE OF COUNT " + count );
                         counter.setText(String.valueOf(count));
                         progressBar.setProgress(count, true);
-
                         Map<String, Object> votes = new HashMap<>();
-                        int vote = pollModel.votes.votes.get(options.replace(" ", "_"));
+                        int vote = pollModel.votes.votes.get(radio.getText().toString().trim().replace(" ", "_"));
+                        Log.d(TAG, "onBindViewHolder: VALUE OF VOTE " + vote );
+                        Log.d(TAG, "onBindViewHolder: VALUE OF options " + radio.getText().toString().trim() );
                         votes.put(radio.getText().toString().replace(" ", "_"), vote + 1);
 
                         Constants.databaseReference().child(Constants.MESSAGES).child(model.chatID).child(model.id).child("pollModel").child("votes").child("votes")
@@ -163,13 +192,20 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
                                 .updateChildren(voters);
 
                     } else {
+                        Log.d(TAG, "onBindViewHolder: UN CHECKED");
                         count = Integer.parseInt(counter.getText().toString()) - 1;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF COUNT " + count );
                         if (count < 0) count = 0;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF AFTER COUNT " + count );
                         counter.setText(String.valueOf(count));
                         progressBar.setProgress(count, true);
                         Map<String, Object> votes = new HashMap<>();
-                        int vote = pollModel.votes.votes.get(options.replace(" ", "_"));
-                        votes.put(radio.getText().toString().replace(" ", "_"), vote - 1);
+                        int vote = pollModel.votes.votes.get(radio.getText().toString().trim().replace(" ", "_"));
+                        Log.d(TAG, "onBindViewHolder: VALUE OF VOTE " + vote );
+                        Log.d(TAG, "onBindViewHolder: VALUE OF options " + radio.getText().toString().trim() );
+                        vote = vote <= 0 ? 0 : vote - 1;
+                        Log.d(TAG, "onBindViewHolder: VALUE OF AFTER VOTE " + vote );
+                        votes.put(radio.getText().toString().replace(" ", "_"), vote);
                         Constants.databaseReference().child(Constants.MESSAGES).child(model.chatID).child(model.id).child("pollModel").child("votes").child("votes")
                                 .updateChildren(votes);
                         String voter = Constants.auth().getCurrentUser().getUid();
@@ -181,20 +217,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
                     globalCounter = counter;
                     globalProgressBar = progressBar;
                 });
-                int value = pollModel.votes.votes.get(options.replace(" ", "_"));
-                counter.setText(String.valueOf(value));
-                progressBar.setProgress(value, true);
-                Constants.databaseReference().child(Constants.MESSAGES).child(model.chatID).child(model.id).child("pollModel").child("votes").child("voters")
-                        .child(options.replace(" ", "_")).child(Constants.auth().getCurrentUser().getUid())
-                                .get().addOnSuccessListener(dataSnapshot -> {
-                            if (dataSnapshot.exists()) {
-                                global = radio;
-                                globalCounter = counter;
-                                globalProgressBar = progressBar;
-                                radio.setChecked(true);
-                            }
-                        });
-
                 holder.radio_group.addView(customLayout);
             }
         } else {

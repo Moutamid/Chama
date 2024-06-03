@@ -41,7 +41,7 @@
         <activity
             android:name=".activities.ProductsActivity"
             android:exported="false" />
-        <activity
+        <activity android:windowSoftInputMode="adjustPan"
             android:name=".activities.ChatActivity"
             android:exported="false" />
         <activity

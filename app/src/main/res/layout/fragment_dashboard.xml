@@ -166,6 +166,7 @@
             app:cardElevation="0dp">
 
             <LinearLayout
+                android:id="@+id/votingResults"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -174,19 +175,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Question asked in the group will be here"
-                    android:textStyle="bold"
-                    android:textColor="@color/text3" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Group name"
-                    android:textColor="@color/text2" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="5dp" />
+                    android:gravity="center"
+                    android:text="No Poll Found"
+                    android:id="@+id/noPoll" />
 
             </LinearLayout>
 

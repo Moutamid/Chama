@@ -35,6 +35,7 @@ public class MessageFragment extends Fragment {
     FragmentMessageBinding binding;
     ArrayList<ChatModel> list;
     Context mContext;
+    Dialog dialog;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -51,7 +52,6 @@ public class MessageFragment extends Fragment {
     public MessageFragment() {
         // Required empty public constructor
     }
-    Dialog dialog;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment

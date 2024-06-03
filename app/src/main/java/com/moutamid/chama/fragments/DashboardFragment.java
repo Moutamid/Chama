@@ -1,15 +1,26 @@
 package com.moutamid.chama.fragments;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -22,28 +33,51 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.firebase.database.DataSnapshot;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.bottomsheets.DateFilter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
+import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.TimelineModel;
+import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.models.VoteModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class DashboardFragment extends Fragment {
     FragmentDashboardBinding binding;
     private LineChart lineChart;
     private BarChart chart;
+    ArrayList<ChatModel> list;
+    ArrayList<VoteModel> votes;
+    Context mContext;
+    Dialog dialog;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
     public DashboardFragment() {
         // Required empty public constructor
     }
@@ -68,8 +102,193 @@ public class DashboardFragment extends Fragment {
             dateFilter.show(getChildFragmentManager(), dateFilter.getTag());
         });
 
+        dialog = new Dialog(mContext);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.loading_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setCancelable(false);
+        dialog.show();
+
+        getMessages();
+
         return binding.getRoot();
     }
+
+    private void getVotingResults() {
+        votes = new ArrayList<>();
+        Log.d(TAG, "getVotingResults: " + list.size());
+        for (ChatModel model : list) {
+            Constants.databaseReference().child(Constants.MESSAGES).child(model.id)
+                    .get().addOnSuccessListener(dataSnapshot -> {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            MessageModel messageModel = snapshot.getValue(MessageModel.class);
+                            if (messageModel.isPoll && Constants.isSameDay(messageModel.timestamp, new Date().getTime())) {
+                                votes.add(new VoteModel(model, messageModel));
+                            }
+                        }
+                        setViews();
+                    });
+        }
+    }
+
+    private static final String TAG = "DashboardFragment";
+    private void setViews() {
+        Log.d(TAG, "setViews: " + votes.size());
+
+        binding.votingResults.removeAllViews();
+        for (VoteModel voteModel : votes) {
+            View voting_result = getLayoutInflater().inflate(R.layout.voting_result, null, false);
+
+            TextView question = voting_result.findViewById(R.id.question);
+            TextView groupName = voting_result.findViewById(R.id.groupName);
+            LinearLayout votingOptions = voting_result.findViewById(R.id.votingOptions);
+
+            groupName.setText(voteModel.chatModel.name);
+            question.setText(voteModel.model.pollModel.question);
+            votingOptions.removeAllViews();
+            for (String options : voteModel.model.pollModel.options) {
+                View voting_options = getLayoutInflater().inflate(R.layout.voting_options, null, false);
+                TextView option = voting_options.findViewById(R.id.option);
+                TextView countVote = voting_options.findViewById(R.id.countVote);
+                RelativeLayout imagesLayout = voting_options.findViewById(R.id.imagesLayout);
+                LinearProgressIndicator progressBar = voting_options.findViewById(R.id.progressBar);
+
+                View voting_images = getLayoutInflater().inflate(R.layout.voting_images, null, false);
+                CircleImageView image1 = voting_images.findViewById(R.id.image1);
+                CircleImageView image2 = voting_images.findViewById(R.id.image2);
+                CircleImageView image3 = voting_images.findViewById(R.id.image3);
+                option.setText(options);
+                int voteCount = voteModel.model.pollModel.votes.votes.get(options.replace(" ", "_"));
+                if (voteCount == 1) {
+                    countVote.setVisibility(View.GONE);
+                    image1.setVisibility(View.VISIBLE);
+                    image2.setVisibility(View.GONE);
+                    image3.setVisibility(View.GONE);
+                    Map<String, Object> votersForOption = (Map<String, Object>) voteModel.model.pollModel.votes.voters.get(options.replace(" ", "_"));
+                    if (votersForOption != null) {
+                        List<String> link = new ArrayList<>();
+                        for (Map.Entry<String, Object> entry : votersForOption.entrySet()) {
+                            String voterId = entry.getKey();
+                            Log.d(TAG, "voterId: " + voterId);
+                            for (UserModel userModel : voteModel.chatModel.groupMembers) {
+                                if (userModel.id.equals(voterId)){
+                                    link.add(userModel.image);
+                                }
+                            }
+                        }
+                        Glide.with(mContext).load(link.get(0)).placeholder(R.drawable.profile_icon).into(image1);
+                    }
+                } else if (voteCount == 2) {
+                    countVote.setVisibility(View.GONE);
+                    image1.setVisibility(View.VISIBLE);
+                    image2.setVisibility(View.VISIBLE);
+                    image3.setVisibility(View.GONE);
+
+                    Map<String, Object> votersForOption = (Map<String, Object>) voteModel.model.pollModel.votes.voters.get(options.replace(" ", "_"));
+                    if (votersForOption != null) {
+                        List<String> link = new ArrayList<>();
+                        for (Map.Entry<String, Object> entry : votersForOption.entrySet()) {
+                            String voterId = entry.getKey();
+                            Log.d(TAG, "voterId: " + voterId);
+                            for (UserModel userModel : voteModel.chatModel.groupMembers) {
+                                if (userModel.id.equals(voterId)){
+                                    link.add(userModel.image);
+                                }
+                            }
+                        }
+                        Glide.with(mContext).load(link.get(0)).placeholder(R.drawable.profile_icon).into(image1);
+                        Glide.with(mContext).load(link.get(1)).placeholder(R.drawable.profile_icon).into(image2);
+                    }
+
+                } else if (voteCount == 3) {
+                    countVote.setVisibility(View.GONE);
+                    image1.setVisibility(View.VISIBLE);
+                    image2.setVisibility(View.VISIBLE);
+                    image3.setVisibility(View.VISIBLE);
+
+                    Map<String, Object> votersForOption = (Map<String, Object>) voteModel.model.pollModel.votes.voters.get(options.replace(" ", "_"));
+
+                    if (votersForOption != null) {
+                        List<String> link = new ArrayList<>();
+                        for (Map.Entry<String, Object> entry : votersForOption.entrySet()) {
+                            String voterId = entry.getKey();
+                            Log.d(TAG, "voterId: " + voterId);
+                            for (UserModel userModel : voteModel.chatModel.groupMembers) {
+                                if (userModel.id.equals(voterId)){
+                                    link.add(userModel.image);
+                                }
+                            }
+                        }
+                        Glide.with(mContext).load(link.get(0)).placeholder(R.drawable.profile_icon).into(image1);
+                        Glide.with(mContext).load(link.get(1)).placeholder(R.drawable.profile_icon).into(image2);
+                        Glide.with(mContext).load(link.get(2)).placeholder(R.drawable.profile_icon).into(image3);
+                    }
+
+                } else if (voteCount >= 4) {
+                    countVote.setVisibility(View.VISIBLE);
+                    image1.setVisibility(View.VISIBLE);
+                    image2.setVisibility(View.VISIBLE);
+                    image3.setVisibility(View.VISIBLE);
+                    countVote.setText("+" + (voteCount - 3) + " more");
+                    Map<String, Object> votersForOption = (Map<String, Object>) voteModel.model.pollModel.votes.voters.get(options.replace(" ", "_"));
+                    if (votersForOption != null) {
+                        List<String> link = new ArrayList<>();
+                        for (Map.Entry<String, Object> entry : votersForOption.entrySet()) {
+                            String voterId = entry.getKey();
+                            Log.d(TAG, "voterId: " + voterId);
+                            for (UserModel userModel : voteModel.chatModel.groupMembers) {
+                                if (userModel.id.equals(voterId)){
+                                    link.add(userModel.image);
+                                }
+                            }
+                        }
+                        Glide.with(mContext).load(link.get(0)).placeholder(R.drawable.profile_icon).into(image1);
+                        Glide.with(mContext).load(link.get(1)).placeholder(R.drawable.profile_icon).into(image2);
+                        Glide.with(mContext).load(link.get(2)).placeholder(R.drawable.profile_icon).into(image3);
+                    }
+
+                } else {
+                    countVote.setVisibility(View.GONE);
+                    image1.setVisibility(View.GONE);
+                    image2.setVisibility(View.GONE);
+                    image3.setVisibility(View.GONE);
+                }
+                imagesLayout.addView(voting_images);
+                progressBar.setMax(voteModel.chatModel.groupMembers.size());
+                progressBar.setProgress(voteCount, true);
+                votingOptions.addView(voting_options);
+            }
+            binding.votingResults.addView(voting_result);
+        }
+    }
+
+    private void getMessages() {
+        list = new ArrayList<>();
+        Constants.databaseReference().child(Constants.CHATS)
+                .child(Constants.auth().getCurrentUser().getUid()).get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        list.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            ChatModel model = dataSnapshot.getValue(ChatModel.class);
+                            if (model.isGroup) {
+                                list.add(model);
+                            }
+                        }
+                        if (list.isEmpty()) {
+                            binding.noPoll.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.noPoll.setVisibility(View.GONE);
+                            getVotingResults();
+                        }
+                    }
+                    dialog.dismiss();
+                }).addOnFailureListener(e -> {
+                    dialog.dismiss();
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 
     private void setupTimeline() {
         binding.timelineRC.setLayoutManager(new LinearLayoutManager(requireContext()));
