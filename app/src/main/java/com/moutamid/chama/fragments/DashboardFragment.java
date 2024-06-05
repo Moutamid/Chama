@@ -49,6 +49,8 @@ import com.moutamid.chama.models.VoteModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +128,7 @@ public class DashboardFragment extends Fragment {
                                 votes.add(new VoteModel(model, messageModel));
                             }
                         }
+                        votes.sort(Comparator.comparing(voteModel -> voteModel.model.timestamp));
                         setViews();
                     });
         }
@@ -138,7 +141,6 @@ public class DashboardFragment extends Fragment {
         binding.votingResults.removeAllViews();
         for (VoteModel voteModel : votes) {
             View voting_result = getLayoutInflater().inflate(R.layout.voting_result, null, false);
-
             TextView question = voting_result.findViewById(R.id.question);
             TextView groupName = voting_result.findViewById(R.id.groupName);
             LinearLayout votingOptions = voting_result.findViewById(R.id.votingOptions);
