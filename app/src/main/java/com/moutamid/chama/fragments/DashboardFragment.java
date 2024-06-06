@@ -128,8 +128,14 @@ public class DashboardFragment extends Fragment {
                                 votes.add(new VoteModel(model, messageModel));
                             }
                         }
-                        votes.sort(Comparator.comparing(voteModel -> voteModel.model.timestamp));
-                        setViews();
+                        if (votes.isEmpty()) {
+                            binding.noPoll.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.noPoll.setVisibility(View.GONE);
+                            votes.sort(Comparator.comparing(voteModel -> voteModel.model.timestamp));
+                            Collections.reverse(votes);
+                            setViews();
+                        }
                     });
         }
     }

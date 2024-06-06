@@ -36,6 +36,7 @@
                     android:src="@drawable/profile_icon" />
 
             </androidx.cardview.widget.CardView>
+
             <TextView
                 android:id="@+id/name"
                 android:layout_width="0dp"
@@ -44,11 +45,6 @@
                 android:layout_weight="1"
                 android:text="Alex"
                 android:textSize="16sp" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/radio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
 
         </LinearLayout>
 

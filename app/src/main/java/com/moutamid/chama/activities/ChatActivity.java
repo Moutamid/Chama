@@ -34,7 +34,9 @@ import com.google.firebase.database.DatabaseError;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.ChatAdapter;
 import com.moutamid.chama.bottomsheets.ChatMenu;
+import com.moutamid.chama.bottomsheets.WithdrawFunds;
 import com.moutamid.chama.databinding.ActivityChatBinding;
+import com.moutamid.chama.listener.FundTransfer;
 import com.moutamid.chama.listener.ImageSelectionListener;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
@@ -82,7 +84,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.chat.setLayoutManager(new LinearLayoutManager(this));
         binding.chat.setHasFixedSize(false);
 
-        adapter = new ChatAdapter(this, list);
+        adapter = new ChatAdapter(this, list, fundTransfer);
         binding.chat.setAdapter(adapter);
 
         Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id)
@@ -167,6 +169,19 @@ public class ChatActivity extends AppCompatActivity {
         });
 
     }
+
+    FundTransfer fundTransfer = new FundTransfer() {
+        @Override
+        public void onWithdraw(MessageModel model) {
+            WithdrawFunds withdrawFunds = new WithdrawFunds(chatModel, model);
+            withdrawFunds.show(ChatActivity.this.getSupportFragmentManager(), withdrawFunds.getTag());
+        }
+
+        @Override
+        public void onReceipt(MessageModel model) {
+
+        }
+    };
 
     ImageSelectionListener imageSelectionListener = () -> {
         Intent intent = new Intent(Intent.ACTION_PICK,

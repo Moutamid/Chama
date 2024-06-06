@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -116,7 +117,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserVH> implem
     };
 
     public class UserVH extends RecyclerView.ViewHolder {
-        CircleImageView image;
+        ImageView image;
         TextView name;
         MaterialRadioButton radio;
 

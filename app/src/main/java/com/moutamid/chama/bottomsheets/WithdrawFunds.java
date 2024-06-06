@@ -15,14 +15,27 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.WithdrawFundBinding;
 import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.models.MessageModel;
 import com.zhouyou.view.seekbar.SignSeekBar;
 
 public class WithdrawFunds extends BottomSheetDialogFragment {
 
     WithdrawFundBinding binding;
     ChatModel chatModel;
+    MessageModel model;
+    String money;
+
     public WithdrawFunds(ChatModel chatModel) {
         this.chatModel = chatModel;
+    }
+
+    public WithdrawFunds(String money) {
+        this.money = money;
+    }
+
+    public WithdrawFunds(ChatModel chatModel, MessageModel model) {
+        this.chatModel = chatModel;
+        this.model = model;
     }
 
     @Nullable
@@ -32,6 +45,10 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
 
         binding.toolbar.name.setText("Withdraw Money");
         binding.toolbar.back.setOnClickListener(v -> dismiss());
+
+        if (model == null){
+
+        }
 
         binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
             @Override

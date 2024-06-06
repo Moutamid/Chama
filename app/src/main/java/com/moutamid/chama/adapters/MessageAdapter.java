@@ -6,6 +6,7 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,12 +49,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         holder.message.setText(model.lastMessage);
         holder.date.setText(Constants.getTime(model.timestamp));
 
-        if (model.isMoneyShared){
-            holder.moneySharedLayout.setVisibility(View.VISIBLE);
-            String[] money = model.money.split(", ");
-            holder.whoReceive.setText(money[0]);
-            holder.money.setText(money[1]);
-        }
         Glide.with(context).load(model.image).placeholder(R.drawable.profile_icon).into(holder.image);
 
         holder.itemView.setOnClickListener(v -> {
@@ -61,6 +56,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             context.startActivity(new Intent(context, ChatActivity.class));
         });
 
+        if (model.isMoneyShared){
+            holder.moneySharedLayout.setVisibility(View.VISIBLE);
+            holder.whoReceive.setText(model.whoShared.split(" - ")[0]);
+            holder.money.setText(model.whoShared.split(" - ")[1]);
+        }
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public class MessageVH extends RecyclerView.ViewHolder{
-        CircleImageView image;
+        ImageView image;
         TextView name, message, date, whoReceive, money;
         LinearLayout moneySharedLayout;
         public MessageVH(@NonNull View itemView) {
