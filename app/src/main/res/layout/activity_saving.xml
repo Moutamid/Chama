@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="18sp"
-                    tools:text="Account Number:" />
+                    android:text="Account Number:" />
 
                 <TextView
                     android:id="@+id/accountNumber"
@@ -118,7 +118,7 @@
                     android:gravity="end"
                     android:textColor="@color/text3"
                     android:textSize="16sp"
-                    tools:text="21456148645" />
+                    android:text="21456148645" />
 
             </LinearLayout>
 
@@ -141,7 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="15sp"
-                        tools:text="Normal saving amount" />
+                        android:text="Normal saving amount" />
 
                     <TextView
                         android:id="@+id/savedAmount"
@@ -177,7 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="15sp"
-                        tools:text="Project lock saving amount" />
+                        android:text="Project lock saving amount" />
 
                     <TextView
                         android:id="@+id/lockSaving"

@@ -22,6 +22,7 @@ import com.moutamid.chama.adapters.PersonAdapter;
 import com.moutamid.chama.databinding.SendMoneyBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
+import com.moutamid.chama.models.SavingModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 import com.zhouyou.view.seekbar.SignSeekBar;
@@ -38,6 +39,7 @@ public class SendMoney extends BottomSheetDialogFragment {
     UserModel userModel;
     ArrayList<UserModel> list;
     UserModel selectedPerson;
+    SavingModel mySavings, hisSaving;
 
     public SendMoney(ChatModel chatModel) {
         this.chatModel = chatModel;
@@ -54,6 +56,23 @@ public class SendMoney extends BottomSheetDialogFragment {
         userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
         list = new ArrayList<>();
+        Constants.showDialog();
+
+        Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.NORMAL)
+                .get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        mySavings = dataSnapshot.getValue(SavingModel.class);
+                        binding.seekBar.getConfigBuilder().max((float) mySavings.amount).build();
+                    } else {
+                        dismiss();
+                        Toast.makeText(requireContext(), "Insufficient Balance Please recharge first", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    dismiss();
+                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
 
         if (!chatModel.isGroup) {
             UserModel user = new UserModel();
@@ -63,6 +82,16 @@ public class SendMoney extends BottomSheetDialogFragment {
             selectedPerson = user;
             binding.gender.getEditText().setText(user.name);
             list.add(user);
+
+            Constants.databaseReference().child(Constants.SAVING).child(selectedPerson.id).child(Constants.NORMAL)
+                    .get().addOnSuccessListener(dataSnapshot -> {
+                        if (dataSnapshot.exists()) {
+                            hisSaving = dataSnapshot.getValue(SavingModel.class);
+                        }
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
+
         } else {
             for (UserModel user : chatModel.groupMembers) {
                 if (!user.id.equals(userModel.id)) {
@@ -83,6 +112,15 @@ public class SendMoney extends BottomSheetDialogFragment {
                 selectedPerson = adapter.getItem(position);
                 String name = selectedPerson.name;
                 binding.gender.getEditText().setText(name);
+
+                Constants.databaseReference().child(Constants.SAVING).child(selectedPerson.id).child(Constants.NORMAL)
+                        .get().addOnSuccessListener(dataSnapshot -> {
+                            if (dataSnapshot.exists()) {
+                                hisSaving = dataSnapshot.getValue(SavingModel.class);
+                            }
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        });
             }
         });
 
@@ -109,6 +147,7 @@ public class SendMoney extends BottomSheetDialogFragment {
             if (selectedPerson == null) {
                 Toast.makeText(requireContext(), "Select the Person", Toast.LENGTH_SHORT).show();
             } else {
+                Constants.showDialog();
                 MessageModel model = new MessageModel();
                 model.id = UUID.randomUUID().toString();
                 model.senderID = Constants.auth().getCurrentUser().getUid();
@@ -153,7 +192,6 @@ public class SendMoney extends BottomSheetDialogFragment {
                                         }
                                     });
                         });
-
             }
         });
 

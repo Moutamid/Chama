@@ -39,6 +39,9 @@ public class Constants {
     public static final String SAVING = "SAVING";
     public static final String REPORT = "REPORT";
     public static final String MESSAGES = "MESSAGES";
+    public static final String NORMAL = "NORMAL";
+    public static final String LOCK = "LOCK";
+
     public static void initDialog(Context context) {
         dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);

@@ -1,29 +1,34 @@
 package com.moutamid.chama.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.moutamid.chama.R;
+import com.moutamid.chama.bottomsheets.DepositFund;
 import com.moutamid.chama.bottomsheets.WithdrawFunds;
 import com.moutamid.chama.databinding.ActivitySavingBinding;
+import com.moutamid.chama.models.SavingModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 
 public class SavingActivity extends AppCompatActivity {
     ActivitySavingBinding binding;
     UserModel userModel;
+    SavingModel normal, locked;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySavingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Constants.initDialog(this);
+
+        Constants.showDialog();
 
         binding.toolbar.name.setText("Savings");
         binding.toolbar.back.setOnClickListener(v -> onBackPressed());
@@ -37,6 +42,39 @@ public class SavingActivity extends AppCompatActivity {
             WithdrawFunds withdrawFunds = new WithdrawFunds("30.00");
             withdrawFunds.show(this.getSupportFragmentManager(), withdrawFunds.getTag());
         });
+        binding.deposit.setOnClickListener(v -> {
+            DepositFund depositFund = new DepositFund();
+            depositFund.setListener(() -> {
+                fetchData();
+            });
+            depositFund.show(this.getSupportFragmentManager(), depositFund.getTag());
+        });
 
+        binding.edit.setOnClickListener(v -> startActivity(new Intent(this, ProfileEditActivity.class)));
+        fetchData();
+    }
+
+    private void fetchData() {
+        Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.NORMAL).
+                get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        normal = dataSnapshot.getValue(SavingModel.class);
+                        binding.savedAmount.setText("USD " + normal.amount);
+                    } else {
+                        binding.savedAmount.setText("USD 0.00");
+                    }
+                });
+
+        Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.LOCK).
+                get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        locked = dataSnapshot.getValue(SavingModel.class);
+                        binding.lockSaving.setText("USD " + locked.amount);
+                    } else {
+                        binding.lockSaving.setText("USD 0.00");
+                    }
+                });
     }
 }

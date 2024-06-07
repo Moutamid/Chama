@@ -18,6 +18,7 @@ import com.moutamid.chama.databinding.DateFilterBinding;
 public class DateFilter extends BottomSheetDialogFragment {
     DateFilterBinding binding;
     String type;
+
     public DateFilter(String type) {
         this.type = type;
     }
@@ -28,6 +29,8 @@ public class DateFilter extends BottomSheetDialogFragment {
         binding = DateFilterBinding.inflate(getLayoutInflater(), container, false);
 
         binding.close.setOnClickListener(v -> dismiss());
+
+
 
         return binding.getRoot();
     }

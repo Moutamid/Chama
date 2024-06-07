@@ -48,11 +48,15 @@ import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.models.VoteModel;
 import com.moutamid.chama.utilis.Constants;
 
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -345,15 +349,20 @@ public class DashboardFragment extends Fragment {
         l.setXOffset(10f);
         l.setYEntrySpace(0f);
         l.setTextSize(8f);
-
+        String[] MONTHS = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
         XAxis xAxis = chart.getXAxis();
         xAxis.setGranularity(1f);
         xAxis.setCenterAxisLabels(true);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return String.valueOf((int) value);
+            public String getFormattedValue(float value) {
+                int monthIndex = (int) value;
+                if (monthIndex >= 0 && monthIndex < MONTHS.length) {
+                    return MONTHS[monthIndex];
+                } else {
+                    return "";
+                }
             }
         });
 
@@ -363,13 +372,26 @@ public class DashboardFragment extends Fragment {
         leftAxis.setSpaceTop(35f);
         leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
 
+        leftAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                if (value > 1000) {
+                    NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+                    formatter.setMinimumFractionDigits(0);
+                    formatter.setMaximumFractionDigits(0);
+                    return formatter.format(value / 1000) + "k"; // Add "k" for thousands
+                } else {
+                    return String.valueOf((int) value); // Display as integer for small values
+                }
+            }
+        });
+
         chart.getAxisRight().setEnabled(false);
 
         float groupSpace = 0.08f;
         float barSpace = 0.03f; // x4 DataSet
         float barWidth = 0.2f; // x4 DataSet
         // (0.2 + 0.03) * 4 + 0.08 = 1.00 -> interval per "group"
-
         int groupCount = 10 + 1;
         int startYear = 1980;
         int endYear = startYear + groupCount;
@@ -380,7 +402,7 @@ public class DashboardFragment extends Fragment {
 
         float randomMultiplier = 100 * 100000f;
 
-        for (int i = startYear; i < endYear; i++) {
+        for (int i = 0; i < 12; i++) {
             values1.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
             values2.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
             values3.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
@@ -421,7 +443,7 @@ public class DashboardFragment extends Fragment {
         chart.getBarData().setBarWidth(barWidth);
 
         // restrict the x-axis range
-        chart.getXAxis().setAxisMinimum(startYear);
+        chart.getXAxis().setAxisMinimum(0);
 
         // barData.getGroupWith(...) is a helper that calculates the width each group needs based on the provided parameters
         chart.getXAxis().setAxisMaximum(startYear + chart.getBarData().getGroupWidth(groupSpace, barSpace) * groupCount);

@@ -46,9 +46,11 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
         binding.toolbar.name.setText("Withdraw Money");
         binding.toolbar.back.setOnClickListener(v -> dismiss());
 
-        if (model == null){
+        binding.cancel.setOnClickListener(v -> dismiss());
 
-        }
+        binding.send.setOnClickListener(v -> {
+
+        });
 
         binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
             @Override
