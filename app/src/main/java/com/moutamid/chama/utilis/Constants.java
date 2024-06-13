@@ -40,7 +40,9 @@ public class Constants {
     public static final String REPORT = "REPORT";
     public static final String MESSAGES = "MESSAGES";
     public static final String NORMAL = "NORMAL";
+    public static final String TRANSACTIONS = "TRANSACTIONS";
     public static final String LOCK = "LOCK";
+    public static final String TIMELINE = "TIMELINE";
 
     public static void initDialog(Context context) {
         dialog = new Dialog(context);

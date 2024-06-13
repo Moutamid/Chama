@@ -6,6 +6,7 @@ public class ChatModel {
     public String id, userID, name, image, lastMessage, money, whoShared;
     public boolean isMoneyShared, isGroup;
     public long timestamp;
+    public String adminID;
     public ArrayList<UserModel> groupMembers;
     public ChatModel() {
     }

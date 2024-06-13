@@ -39,11 +39,14 @@ public class SavingActivity extends AppCompatActivity {
         Glide.with(this).load(userModel.image).placeholder(R.drawable.profile_icon).into(binding.profile);
 
         binding.withdraw.setOnClickListener(v -> {
-            WithdrawFunds withdrawFunds = new WithdrawFunds("30.00");
-            withdrawFunds.show(this.getSupportFragmentManager(), withdrawFunds.getTag());
+            DepositFund depositFund = new DepositFund(normal, locked, false);
+            depositFund.setListener(() -> {
+                fetchData();
+            });
+            depositFund.show(this.getSupportFragmentManager(), depositFund.getTag());
         });
         binding.deposit.setOnClickListener(v -> {
-            DepositFund depositFund = new DepositFund();
+            DepositFund depositFund = new DepositFund(normal, locked, true);
             depositFund.setListener(() -> {
                 fetchData();
             });
@@ -60,7 +63,7 @@ public class SavingActivity extends AppCompatActivity {
                     Constants.dismissDialog();
                     if (dataSnapshot.exists()) {
                         normal = dataSnapshot.getValue(SavingModel.class);
-                        binding.savedAmount.setText("USD " + normal.amount);
+                        binding.savedAmount.setText("USD " + String.format("%.2f", normal.amount));
                     } else {
                         binding.savedAmount.setText("USD 0.00");
                     }
@@ -71,7 +74,7 @@ public class SavingActivity extends AppCompatActivity {
                     Constants.dismissDialog();
                     if (dataSnapshot.exists()) {
                         locked = dataSnapshot.getValue(SavingModel.class);
-                        binding.lockSaving.setText("USD " + locked.amount);
+                        binding.lockSaving.setText("USD " + String.format("%.2f", locked.amount));
                     } else {
                         binding.lockSaving.setText("USD 0.00");
                     }

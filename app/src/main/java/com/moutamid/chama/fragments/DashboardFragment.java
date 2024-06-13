@@ -37,6 +37,8 @@ import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.bottomsheets.DateFilter;
@@ -305,26 +307,29 @@ public class DashboardFragment extends Fragment {
     private void setupTimeline() {
         binding.timelineRC.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.timelineRC.setHasFixedSize(false);
-        ArrayList<TimelineModel> list = getTimelineList();
-        TimelineAdapter adapter = new TimelineAdapter(requireContext(), list);
-        binding.timelineRC.setAdapter(adapter);
-    }
-
-    private ArrayList<TimelineModel> getTimelineList() {
         ArrayList<TimelineModel> list = new ArrayList<>();
-        list.add(new TimelineModel(UUID.randomUUID().toString(), "Chama Contribution",
-                "USD 140 credited in your account by @nickjones. Tap to see this in chama group.", new Date().getTime()));
+        Constants.databaseReference().child(Constants.TIMELINE).child(Constants.auth().getCurrentUser().getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            list.clear();
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                TimelineModel model = dataSnapshot.getValue(TimelineModel.class);
+                                list.add(model);
+                            }
+                        }
+                        list.sort(Comparator.comparing(timelineModel -> timelineModel.timeline));
+                        Collections.reverse(list);
+                        TimelineAdapter adapter = new TimelineAdapter(mContext, list);
+                        binding.timelineRC.setAdapter(adapter);
+                    }
 
-        list.add(new TimelineModel(UUID.randomUUID().toString(), "Stock flow alerts",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
-
-        list.add(new TimelineModel(UUID.randomUUID().toString(), "Reminder of Impending Meetings",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
-
-        list.add(new TimelineModel(UUID.randomUUID().toString(), "Training Or Functions",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor..", new Date().getTime()));
-
-        return list;
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(mContext, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void setupBarchart() {

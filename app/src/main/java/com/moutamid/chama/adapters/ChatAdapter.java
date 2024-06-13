@@ -238,7 +238,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
             holder.message.setText(model.message);
         }
 
-        if (model.isMoneyShared){
+        if (model.isMoneyShared && !model.senderID.equals(Constants.auth().getCurrentUser().getUid())){
             holder.withdraw.setOnClickListener(v -> fundTransfer.onWithdraw(model));
             holder.receipt.setOnClickListener(v -> fundTransfer.onReceipt(model));
         }

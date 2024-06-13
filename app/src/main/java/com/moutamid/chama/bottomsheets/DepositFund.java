@@ -25,8 +25,13 @@ import java.util.UUID;
 public class DepositFund extends BottomSheetDialogFragment {
     DepositFundsBinding binding;
     private BottomSheetDismissListener listener;
+    SavingModel normal, locked;
+    boolean isDeposit;
 
-    public DepositFund() {
+    public DepositFund(SavingModel normal, SavingModel locked, boolean isDeposit) {
+        this.normal = normal;
+        this.isDeposit = isDeposit;
+        this.locked = locked;
     }
 
     @Nullable
@@ -34,26 +39,53 @@ public class DepositFund extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = DepositFundsBinding.inflate(getLayoutInflater(), container, false);
 
-        binding.toolbar.name.setText("Deposit");
+        String title = isDeposit ? "Deposit" : "Withdraw";
+        binding.toolbar.name.setText(title);
         binding.toolbar.back.setOnClickListener(v -> dismiss());
-
+        binding.send.setText(title + " Money");
         binding.cancel.setOnClickListener(v -> dismiss());
 
         binding.normal.setChecked(true);
 
         binding.send.setOnClickListener(v -> {
-            if (binding.amount.getEditText().getText().toString().isEmpty()) {
-                Toast.makeText(requireContext(), "Enter Amount", Toast.LENGTH_SHORT).show();
+            if (isDeposit) {
+                depositMoney();
             } else {
-                String type = binding.normal.isChecked() ? Constants.NORMAL : Constants.LOCK;
-                SavingModel savingModel = new SavingModel();
-                savingModel.id = UUID.randomUUID().toString();
-                savingModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString());
-                Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(type).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
+                withdrawMoney();
             }
         });
 
         return binding.getRoot();
+    }
+
+    private void withdrawMoney() {
+        if (binding.amount.getEditText().getText().toString().isEmpty()) {
+            Toast.makeText(requireContext(), "Enter Amount", Toast.LENGTH_SHORT).show();
+        } else {
+            double amount = binding.normal.isChecked() ? normal.amount : locked.amount;
+            if (amount < Double.parseDouble(binding.amount.getEditText().getText().toString())) {
+                Toast.makeText(requireContext(), "Amount should not be bigger then current balance", Toast.LENGTH_SHORT).show();
+            } else {
+                String type = binding.normal.isChecked() ? Constants.NORMAL : Constants.LOCK;
+                SavingModel savingModel = new SavingModel();
+                savingModel.id = UUID.randomUUID().toString();
+                savingModel.amount = amount - Double.parseDouble(binding.amount.getEditText().getText().toString());
+                Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(type).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
+            }
+        }
+    }
+
+    private void depositMoney() {
+        if (binding.amount.getEditText().getText().toString().isEmpty()) {
+            Toast.makeText(requireContext(), "Enter Amount", Toast.LENGTH_SHORT).show();
+        } else {
+            String type = binding.normal.isChecked() ? Constants.NORMAL : Constants.LOCK;
+            SavingModel savingModel = new SavingModel();
+            savingModel.id = UUID.randomUUID().toString();
+            double amount = binding.normal.isChecked() ? normal.amount : locked.amount;
+            savingModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString()) + amount;
+            Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(type).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
+        }
     }
 
     @Override

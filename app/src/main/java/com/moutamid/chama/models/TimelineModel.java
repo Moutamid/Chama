@@ -1,13 +1,10 @@
 package com.moutamid.chama.models;
 
 public class TimelineModel {
-    public String id, name, desc;
+    public String id, name, desc, chatID;
     public long timeline;
+    public boolean isChat;
 
-    public TimelineModel(String id, String name, String desc, long timeline) {
-        this.id = id;
-        this.name = name;
-        this.desc = desc;
-        this.timeline = timeline;
+    public TimelineModel() {
     }
 }

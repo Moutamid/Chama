@@ -116,6 +116,9 @@ public class GroupSelectionActivity extends AppCompatActivity {
         senderModel.isMoneyShared = false;
         receiverModel.isMoneyShared = false;
 
+        senderModel.adminID = Constants.auth().getCurrentUser().getUid();
+        receiverModel.adminID = Constants.auth().getCurrentUser().getUid();
+
         senderModel.lastMessage = "Start Messaging";
         receiverModel.lastMessage = "Start Messaging";
 

@@ -23,6 +23,7 @@ import com.moutamid.chama.databinding.SendMoneyBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.SavingModel;
+import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 import com.zhouyou.view.seekbar.SignSeekBar;
@@ -161,6 +162,31 @@ public class SendMoney extends BottomSheetDialogFragment {
                 model.image = userModel.image;
                 model.message = userModel.name + " Contributed " + model.money;
 
+                double sendAmount = mySavings.amount - binding.seekBar.getProgressFloat();
+                double receiveAmount = (hisSaving == null ? 0.0 : hisSaving.amount) + binding.seekBar.getProgressFloat();
+
+                mySavings.amount = sendAmount;
+                if (hisSaving == null) {
+                    hisSaving = new SavingModel();
+                    hisSaving.amount = receiveAmount;
+                    hisSaving.id = UUID.randomUUID().toString();
+                } else {
+                    hisSaving.amount = receiveAmount;
+                }
+
+                Constants.databaseReference().child(Constants.SAVING).child(selectedPerson.id).child(Constants.NORMAL).setValue(hisSaving);
+                Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.NORMAL).setValue(mySavings);
+
+                TimelineModel timelineModel = new TimelineModel();
+                timelineModel.isChat = true;
+                timelineModel.id = UUID.randomUUID().toString();
+                timelineModel.chatID = chatModel.id;
+                timelineModel.timeline = new Date().getTime();
+                timelineModel.name = chatModel.name;
+                timelineModel.desc = "USD " + binding.seekBar.getProgressFloat() + " has been sent from your account. Tap to view the details in the " + chatModel.name + ".";
+
+                updateTimeLine(timelineModel);
+
                 Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id).child(model.id)
                         .setValue(model).addOnSuccessListener(unused -> {
                             Map<String, Object> map = new HashMap<>();
@@ -170,6 +196,7 @@ public class SendMoney extends BottomSheetDialogFragment {
                             map.put("whoShared", "You shared - " + model.money);
                             Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
                                     .addOnSuccessListener(unused1 -> {
+                                        Constants.dismissDialog();
                                         if (chatModel.isGroup) {
                                             int i = 0;
                                             for (UserModel userModel : chatModel.groupMembers) {
@@ -190,12 +217,33 @@ public class SendMoney extends BottomSheetDialogFragment {
                                                         dismiss();
                                                     });
                                         }
-                                    });
+                                    }).addOnFailureListener(e -> {
+                                        Constants.dismissDialog();
+                                        Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                    });;
+                        }).addOnFailureListener(e -> {
+                            Constants.dismissDialog();
+                            Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         });
             }
         });
 
         return binding.getRoot();
+    }
+
+    private void updateTimeLine(TimelineModel timelineModel) {
+        Constants.databaseReference().child(Constants.TIMELINE).child(Constants.auth().getCurrentUser().getUid())
+                .child(timelineModel.id).setValue(timelineModel).addOnSuccessListener(unused -> {
+                    timelineModel.desc = "USD " + binding.seekBar.getProgressFloat() + " has been credited to your account. Tap to view the details in the " + chatModel.name + ".";
+                    Constants.databaseReference().child(Constants.TIMELINE).child(selectedPerson.id)
+                            .child(timelineModel.id).setValue(timelineModel).addOnSuccessListener(unused1 -> {
+                                // Timeline updated
+                            }).addOnFailureListener(e -> {
+                                Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     @NonNull

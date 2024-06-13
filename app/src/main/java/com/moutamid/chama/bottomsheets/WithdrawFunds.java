@@ -23,14 +23,9 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
     WithdrawFundBinding binding;
     ChatModel chatModel;
     MessageModel model;
-    String money;
 
     public WithdrawFunds(ChatModel chatModel) {
         this.chatModel = chatModel;
-    }
-
-    public WithdrawFunds(String money) {
-        this.money = money;
     }
 
     public WithdrawFunds(ChatModel chatModel, MessageModel model) {
