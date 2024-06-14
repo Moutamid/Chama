@@ -61,32 +61,22 @@ public class ChatActivity extends AppCompatActivity {
     Uri imageURI;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        binding = ActivityChatBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        Constants.initDialog(this);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
+    protected void onResume() {
+        super.onResume();
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
-        binding.back.setOnClickListener(v -> onBackPressed());
+
+        if (!chatModel.isGroup || !chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
+            binding.more.setVisibility(View.GONE);
+        }
 
         binding.name.setText(chatModel.name);
         Glide.with(this).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.image);
-        list = new ArrayList<>();
-        binding.chat.setLayoutManager(new LinearLayoutManager(this));
-        binding.chat.setHasFixedSize(false);
 
-        adapter = new ChatAdapter(this, list, fundTransfer);
-        binding.chat.setAdapter(adapter);
+        fetchMessages();
 
+    }
+
+    private void fetchMessages() {
         Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id)
                 .addChildEventListener(new ChildEventListener() {
                     @Override
@@ -104,10 +94,10 @@ public class ChatActivity extends AppCompatActivity {
                     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                         if (snapshot.exists()) {
                             MessageModel messageModel = snapshot.getValue(MessageModel.class);
-                            int index =0;
+                            int index = 0;
                             for (int i = 0; i < list.size(); i++) {
                                 MessageModel l = list.get(i);
-                                if (messageModel.id.equals(l.id)){
+                                if (messageModel.id.equals(l.id)) {
                                     index = i;
                                     break;
                                 }
@@ -135,6 +125,36 @@ public class ChatActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        binding = ActivityChatBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        Constants.initDialog(this);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        binding.back.setOnClickListener(v -> onBackPressed());
+
+        binding.more.setOnClickListener(v -> {
+            startActivity(new Intent(this, GroupSettingActivity.class));
+        });
+
+        list = new ArrayList<>();
+        binding.chat.setLayoutManager(new LinearLayoutManager(this));
+        binding.chat.setHasFixedSize(false);
+
+        adapter = new ChatAdapter(this, list, fundTransfer);
+        binding.chat.setAdapter(adapter);
+
 
         binding.clip.setOnClickListener(v -> {
             ChatMenu chatMenu = new ChatMenu(chatModel, imageSelectionListener);
