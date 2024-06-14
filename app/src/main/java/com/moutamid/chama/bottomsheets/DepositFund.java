@@ -18,8 +18,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.DepositFundsBinding;
 import com.moutamid.chama.listener.BottomSheetDismissListener;
 import com.moutamid.chama.models.SavingModel;
+import com.moutamid.chama.models.TransactionModel;
 import com.moutamid.chama.utilis.Constants;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class DepositFund extends BottomSheetDialogFragment {
@@ -66,6 +68,15 @@ public class DepositFund extends BottomSheetDialogFragment {
             if (amount < Double.parseDouble(binding.amount.getEditText().getText().toString())) {
                 Toast.makeText(requireContext(), "Amount should not be bigger then current balance", Toast.LENGTH_SHORT).show();
             } else {
+
+                TransactionModel transactionModel = new TransactionModel();
+                transactionModel.id = UUID.randomUUID().toString();
+                transactionModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString());
+                transactionModel.type = Constants.WITHDRAW;
+                transactionModel.timestamp = new Date().getTime();
+
+                Constants.databaseReference().child(Constants.TRANSACTIONS).child(Constants.auth().getCurrentUser().getUid()).child(Constants.getCurrentMonth()).child(transactionModel.id).setValue(transactionModel);
+
                 String type = binding.normal.isChecked() ? Constants.NORMAL : Constants.LOCK;
                 SavingModel savingModel = new SavingModel();
                 savingModel.id = UUID.randomUUID().toString();
@@ -85,6 +96,14 @@ public class DepositFund extends BottomSheetDialogFragment {
             double amount = binding.normal.isChecked() ? normal.amount : locked.amount;
             savingModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString()) + amount;
             Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(type).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
+
+            TransactionModel transactionModel = new TransactionModel();
+            transactionModel.id = UUID.randomUUID().toString();
+            transactionModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString());
+            transactionModel.type = type;
+            transactionModel.timestamp = new Date().getTime();
+
+            Constants.databaseReference().child(Constants.TRANSACTIONS).child(Constants.auth().getCurrentUser().getUid()).child(Constants.getCurrentMonth()).child(transactionModel.id).setValue(transactionModel);
         }
     }
 

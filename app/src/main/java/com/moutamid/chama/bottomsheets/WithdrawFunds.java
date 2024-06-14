@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.WithdrawFundBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
@@ -43,6 +45,15 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
 
         binding.cancel.setOnClickListener(v -> dismiss());
 
+        binding.person.setText(chatModel.name);
+        binding.money.setText(model.money);
+        binding.money2.setText(model.money);
+        float money = Float.parseFloat(model.money.replace(" USD", ""));
+        binding.seekBar.getConfigBuilder().max(money).build();
+        binding.seekBar.setProgress(money);
+
+        Glide.with(requireContext()).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.pofileIcon);
+
         binding.send.setOnClickListener(v -> {
 
         });
@@ -50,8 +61,7 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
         binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
             @Override
             public void onProgressChanged(SignSeekBar signSeekBar, int progress, float progressFloat, boolean fromUser) {
-                binding.money.setText("USD " + progressFloat);
-                binding.money2.setText("USD " + progressFloat);
+                binding.money.setText(progressFloat + " USD");
             }
 
             @Override

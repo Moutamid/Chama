@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +23,7 @@ import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.SavingModel;
 import com.moutamid.chama.models.TimelineModel;
+import com.moutamid.chama.models.TransactionModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 import com.zhouyou.view.seekbar.SignSeekBar;
@@ -106,23 +106,20 @@ public class SendMoney extends BottomSheetDialogFragment {
 
         binding.genderList.setDropDownBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
 
-        binding.genderList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PersonAdapter adapter = (PersonAdapter) parent.getAdapter();
-                selectedPerson = adapter.getItem(position);
-                String name = selectedPerson.name;
-                binding.gender.getEditText().setText(name);
+        binding.genderList.setOnItemClickListener((parent, view, position, id) -> {
+            PersonAdapter adapter1 = (PersonAdapter) parent.getAdapter();
+            selectedPerson = adapter1.getItem(position);
+            String name = selectedPerson.name;
+            binding.gender.getEditText().setText(name);
 
-                Constants.databaseReference().child(Constants.SAVING).child(selectedPerson.id).child(Constants.NORMAL)
-                        .get().addOnSuccessListener(dataSnapshot -> {
-                            if (dataSnapshot.exists()) {
-                                hisSaving = dataSnapshot.getValue(SavingModel.class);
-                            }
-                        }).addOnFailureListener(e -> {
-                            Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        });
-            }
+            Constants.databaseReference().child(Constants.SAVING).child(selectedPerson.id).child(Constants.NORMAL)
+                    .get().addOnSuccessListener(dataSnapshot -> {
+                        if (dataSnapshot.exists()) {
+                            hisSaving = dataSnapshot.getValue(SavingModel.class);
+                        }
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
         });
 
         binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
@@ -186,6 +183,7 @@ public class SendMoney extends BottomSheetDialogFragment {
                 timelineModel.desc = "USD " + binding.seekBar.getProgressFloat() + " has been sent from your account. Tap to view the details in the " + chatModel.name + ".";
 
                 updateTimeLine(timelineModel);
+                addTransactionHistory(binding.seekBar.getProgressFloat());
 
                 Constants.databaseReference().child(Constants.MESSAGES).child(chatModel.id).child(model.id)
                         .setValue(model).addOnSuccessListener(unused -> {
@@ -229,6 +227,17 @@ public class SendMoney extends BottomSheetDialogFragment {
         });
 
         return binding.getRoot();
+    }
+
+    private void addTransactionHistory(float amount) {
+        TransactionModel transactionModel = new TransactionModel();
+        transactionModel.id = UUID.randomUUID().toString();
+        transactionModel.amount = amount;
+        transactionModel.type = Constants.NORMAL;
+        transactionModel.timestamp = new Date().getTime();
+
+        Constants.databaseReference().child(Constants.TRANSACTIONS).child(chatModel.userID).child(Constants.getCurrentMonth())
+                .child(transactionModel.id).setValue(transactionModel);
     }
 
     private void updateTimeLine(TimelineModel timelineModel) {

@@ -28,7 +28,10 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class Constants {
@@ -43,6 +46,11 @@ public class Constants {
     public static final String TRANSACTIONS = "TRANSACTIONS";
     public static final String LOCK = "LOCK";
     public static final String TIMELINE = "TIMELINE";
+    public static final String WITHDRAW = "WITHDRAW";
+    public static final String[] months = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    public static String getCurrentMonth() {
+        return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());
+    }
 
     public static void initDialog(Context context) {
         dialog = new Dialog(context);

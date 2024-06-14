@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -33,8 +31,10 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,21 +46,19 @@ import com.moutamid.chama.databinding.FragmentDashboardBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.TimelineModel;
+import com.moutamid.chama.models.TransactionModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.models.VoteModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -96,8 +94,6 @@ public class DashboardFragment extends Fragment {
         binding = FragmentDashboardBinding.inflate(getLayoutInflater(), container, false);
 
         setupLineChart();
-        setupBarchart();
-
         setupTimeline();
 
         binding.dateFilterReports.setOnClickListener(v -> {
@@ -119,7 +115,109 @@ public class DashboardFragment extends Fragment {
 
         getMessages();
 
+        getTransactions();
+
         return binding.getRoot();
+    }
+
+    private void getTransactions() {
+        Constants.databaseReference().child(Constants.TRANSACTIONS).child(Constants.auth().getCurrentUser().getUid())
+                .get().addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        List<BarEntry> normalEntries = new ArrayList<>();
+                        List<BarEntry> lockedEntries = new ArrayList<>();
+                        List<BarEntry> withdrawalEntries = new ArrayList<>();
+
+                        for (int i = 0; i < Constants.months.length; i++) {
+                            String month = Constants.months[i];
+                            DataSnapshot monthData = dataSnapshot.child(month);
+                            if (monthData.exists()) {
+                                for (DataSnapshot data : monthData.getChildren()) {
+                                    TransactionModel monthlyData = data.getValue(TransactionModel.class);
+                                    if (monthlyData != null) {
+                                        if (monthlyData.type.equals(Constants.NORMAL))
+                                            normalEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                        if (monthlyData.type.equals(Constants.LOCK))
+                                            lockedEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                        if (monthlyData.type.equals(Constants.WITHDRAW))
+                                            withdrawalEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                    }
+                                }
+                            } else {
+                                normalEntries.add(new BarEntry(i, 0));
+                                lockedEntries.add(new BarEntry(i, 0));
+                                withdrawalEntries.add(new BarEntry(i, 0));
+                            }
+
+                        }
+
+
+                        BarDataSet normalDataSet = new BarDataSet(normalEntries, "Normal");
+                        normalDataSet.setColor(getResources().getColor(R.color.bar_normal));
+                        BarDataSet lockedDataSet = new BarDataSet(lockedEntries, "Locked");
+                        lockedDataSet.setColor(getResources().getColor(R.color.bar_locked));
+                        BarDataSet withdrawalDataSet = new BarDataSet(withdrawalEntries, "Withdrawal");
+                        withdrawalDataSet.setColor(getResources().getColor(R.color.bar_withdrawal));
+
+                        BarData barData = new BarData(normalDataSet, lockedDataSet, withdrawalDataSet);
+                        binding.barchart.setData(barData);
+                        binding.barchart.invalidate(); // refresh
+
+                        float groupSpace = 0.3f;
+                        float barSpace = 0.05f;
+                        float barWidth = 0.2f;
+                        barData.setBarWidth(barWidth);
+                        binding.barchart.groupBars(0, groupSpace, barSpace);
+                        binding.barchart.invalidate();
+
+                        binding.barchart.setExtraOffsets(0, 0, 0, 15);
+
+                        // Customizing the Y-axis value formatter
+                        binding.barchart.getAxisLeft().setValueFormatter(new ValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value) {
+                                if (value >= 1000 && value < 1000000) {
+                                    return (int) (value / 1000) + "K";
+                                } else if (value >= 1000000) {
+                                    return (int) (value / 1000000) + "M";
+                                } else {
+                                    return String.valueOf((int) value);
+                                }
+                            }
+                        });
+
+                        // Setting the X-axis labels
+                        ValueFormatter xAxisFormatter = new ValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value) {
+                                return Constants.months[(int) value % Constants.months.length];
+                            }
+                        };
+                        binding.barchart.getXAxis().setValueFormatter(xAxisFormatter);
+
+                        binding.barchart.getDescription().setEnabled(false);
+                        binding.barchart.setDrawGridBackground(false);
+                        binding.barchart.getAxisLeft().setDrawGridLines(false);
+                        binding.barchart.getXAxis().setDrawGridLines(false);
+                        binding.barchart.getAxisRight().setDrawGridLines(false);
+                        binding.barchart.getAxisRight().setEnabled(false);
+                        binding.barchart.getXAxis().setGranularity(1f);
+                        binding.barchart.getXAxis().setGranularityEnabled(true);
+
+                        binding.barchart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(Constants.months));
+                        binding.barchart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                        for (IBarDataSet set : binding.barchart.getData().getDataSets())
+                            set.setDrawValues(false);
+
+                        binding.barchart.invalidate();
+                        Legend legend = binding.barchart.getLegend();
+                        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+                        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+                        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+                        legend.setDrawInside(false);
+                    }
+                });
     }
 
     private void getVotingResults() {
@@ -147,6 +245,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private static final String TAG = "DashboardFragment";
+
     private void setViews() {
         Log.d(TAG, "setViews: " + votes.size());
 
@@ -185,7 +284,7 @@ public class DashboardFragment extends Fragment {
                             String voterId = entry.getKey();
                             Log.d(TAG, "voterId: " + voterId);
                             for (UserModel userModel : voteModel.chatModel.groupMembers) {
-                                if (userModel.id.equals(voterId)){
+                                if (userModel.id.equals(voterId)) {
                                     link.add(userModel.image);
                                 }
                             }
@@ -205,7 +304,7 @@ public class DashboardFragment extends Fragment {
                             String voterId = entry.getKey();
                             Log.d(TAG, "voterId: " + voterId);
                             for (UserModel userModel : voteModel.chatModel.groupMembers) {
-                                if (userModel.id.equals(voterId)){
+                                if (userModel.id.equals(voterId)) {
                                     link.add(userModel.image);
                                 }
                             }
@@ -228,7 +327,7 @@ public class DashboardFragment extends Fragment {
                             String voterId = entry.getKey();
                             Log.d(TAG, "voterId: " + voterId);
                             for (UserModel userModel : voteModel.chatModel.groupMembers) {
-                                if (userModel.id.equals(voterId)){
+                                if (userModel.id.equals(voterId)) {
                                     link.add(userModel.image);
                                 }
                             }
@@ -251,7 +350,7 @@ public class DashboardFragment extends Fragment {
                             String voterId = entry.getKey();
                             Log.d(TAG, "voterId: " + voterId);
                             for (UserModel userModel : voteModel.chatModel.groupMembers) {
-                                if (userModel.id.equals(voterId)){
+                                if (userModel.id.equals(voterId)) {
                                     link.add(userModel.image);
                                 }
                             }
@@ -312,7 +411,7 @@ public class DashboardFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
+                        if (snapshot.exists()) {
                             list.clear();
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 TimelineModel model = dataSnapshot.getValue(TimelineModel.class);
