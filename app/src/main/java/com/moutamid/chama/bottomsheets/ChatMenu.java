@@ -50,7 +50,7 @@ public class ChatMenu extends BottomSheetDialogFragment {
 
         binding.withdrawFund.setOnClickListener(v -> {
             dismiss();
-            WithdrawFunds withdrawFunds = new WithdrawFunds(chatModel);
+            WithdrawFunds withdrawFunds = new WithdrawFunds(chatModel, null);
             withdrawFunds.show(getParentFragmentManager(), withdrawFunds.getTag());
         });
 

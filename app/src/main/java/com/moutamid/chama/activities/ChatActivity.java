@@ -315,6 +315,7 @@ public class ChatActivity extends AppCompatActivity {
                     Map<String, Object> map = new HashMap<>();
                     map.put("timestamp", model.timestamp);
                     map.put("lastMessage", m);
+                    map.put("isMoneyShared", false);
                     Constants.databaseReference().child(Constants.CHATS).child(stashUser.id).child(chatModel.id).updateChildren(map)
                             .addOnSuccessListener(unused1 -> {
                                 if (chatModel.isGroup) {

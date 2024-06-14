@@ -131,26 +131,30 @@ public class DashboardFragment extends Fragment {
                         for (int i = 0; i < Constants.months.length; i++) {
                             String month = Constants.months[i];
                             DataSnapshot monthData = dataSnapshot.child(month);
+
+                            float normalSum = 0;
+                            float lockedSum = 0;
+                            float withdrawalSum = 0;
+
                             if (monthData.exists()) {
                                 for (DataSnapshot data : monthData.getChildren()) {
                                     TransactionModel monthlyData = data.getValue(TransactionModel.class);
                                     if (monthlyData != null) {
                                         if (monthlyData.type.equals(Constants.NORMAL))
-                                            normalEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                            normalSum += (float) monthlyData.amount;
                                         if (monthlyData.type.equals(Constants.LOCK))
-                                            lockedEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                            lockedSum += (float) monthlyData.amount;
                                         if (monthlyData.type.equals(Constants.WITHDRAW))
-                                            withdrawalEntries.add(new BarEntry(i, (float) monthlyData.amount));
+                                            withdrawalSum += (float) monthlyData.amount;
                                     }
                                 }
-                            } else {
-                                normalEntries.add(new BarEntry(i, 0));
-                                lockedEntries.add(new BarEntry(i, 0));
-                                withdrawalEntries.add(new BarEntry(i, 0));
                             }
 
+                            // Add the aggregated sum to the entries
+                            normalEntries.add(new BarEntry(i, normalSum));
+                            lockedEntries.add(new BarEntry(i, lockedSum));
+                            withdrawalEntries.add(new BarEntry(i, withdrawalSum));
                         }
-
 
                         BarDataSet normalDataSet = new BarDataSet(normalEntries, "Normal");
                         normalDataSet.setColor(getResources().getColor(R.color.bar_normal));

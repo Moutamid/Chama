@@ -7,18 +7,27 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.fxn.stash.Stash;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.WithdrawFundBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
+import com.moutamid.chama.models.SavingModel;
+import com.moutamid.chama.models.TransactionModel;
+import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.utilis.Constants;
 import com.zhouyou.view.seekbar.SignSeekBar;
+
+import java.util.Date;
+import java.util.UUID;
 
 public class WithdrawFunds extends BottomSheetDialogFragment {
 
@@ -26,10 +35,7 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
     ChatModel chatModel;
     MessageModel model;
 
-    public WithdrawFunds(ChatModel chatModel) {
-        this.chatModel = chatModel;
-    }
-
+    SavingModel mySavings;
     public WithdrawFunds(ChatModel chatModel, MessageModel model) {
         this.chatModel = chatModel;
         this.model = model;
@@ -45,17 +51,53 @@ public class WithdrawFunds extends BottomSheetDialogFragment {
 
         binding.cancel.setOnClickListener(v -> dismiss());
 
-        binding.person.setText(chatModel.name);
-        binding.money.setText(model.money);
-        binding.money2.setText(model.money);
-        float money = Float.parseFloat(model.money.replace(" USD", ""));
-        binding.seekBar.getConfigBuilder().max(money).build();
-        binding.seekBar.setProgress(money);
+        UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
-        Glide.with(requireContext()).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.pofileIcon);
+        Constants.showDialog();
+
+        Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.NORMAL)
+                .get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        mySavings = dataSnapshot.getValue(SavingModel.class);
+                        binding.seekBar.getConfigBuilder().max((float) mySavings.amount).build();
+                        if (model != null) {
+                            binding.money.setText(model.money);
+                            float money = Float.parseFloat(model.money.replace(" USD", ""));
+                            binding.seekBar.setProgress(money);
+                        } else {
+                            binding.money.setText(String.valueOf(mySavings.amount));
+                            binding.seekBar.setProgress((float) mySavings.amount);
+                        }
+                        binding.money2.setText("USD " + String.format("%.2f", mySavings.amount));
+                    } else {
+                        dismiss();
+                        Toast.makeText(requireContext(), "Insufficient Balance Please recharge first", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    dismiss();
+                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+
+        binding.person.setText(userModel.name);
+
+        Glide.with(requireContext()).load(userModel.image).placeholder(R.drawable.profile_icon).into(binding.pofileIcon);
 
         binding.send.setOnClickListener(v -> {
+            TransactionModel transactionModel = new TransactionModel();
+            transactionModel.id = UUID.randomUUID().toString();
+            transactionModel.amount = binding.seekBar.getProgressFloat();
+            transactionModel.type = Constants.WITHDRAW;
+            transactionModel.timestamp = new Date().getTime();
 
+            Constants.databaseReference().child(Constants.TRANSACTIONS).child(Constants.auth().getCurrentUser().getUid()).child(Constants.getCurrentMonth()).child(transactionModel.id).setValue(transactionModel);
+
+            SavingModel savingModel = new SavingModel();
+            savingModel.id = UUID.randomUUID().toString();
+            savingModel.amount = mySavings.amount - binding.seekBar.getProgressFloat();
+            Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(Constants.NORMAL).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
         });
 
         binding.seekBar.setOnProgressChangedListener(new SignSeekBar.OnProgressChangedListener() {
