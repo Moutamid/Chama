@@ -406,7 +406,6 @@ public class DashboardFragment extends Fragment {
                 });
     }
 
-
     private void setupTimeline() {
         binding.timelineRC.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.timelineRC.setHasFixedSize(false);

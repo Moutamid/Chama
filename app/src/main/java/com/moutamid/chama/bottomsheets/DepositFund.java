@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ public class DepositFund extends BottomSheetDialogFragment {
     private BottomSheetDismissListener listener;
     SavingModel normal, locked;
     boolean isDeposit;
-
+    private static final String TAG = "DepositFund";
     public DepositFund(SavingModel normal, SavingModel locked, boolean isDeposit) {
         this.normal = normal;
         this.isDeposit = isDeposit;
@@ -46,6 +47,17 @@ public class DepositFund extends BottomSheetDialogFragment {
         binding.toolbar.back.setOnClickListener(v -> dismiss());
         binding.send.setText(title + " Money");
         binding.cancel.setOnClickListener(v -> dismiss());
+
+        if (normal == null) {
+            normal = new SavingModel();
+            normal.amount = 0;
+            normal.id = UUID.randomUUID().toString();
+        }
+        if (locked == null) {
+            locked = new SavingModel();
+            locked.amount = 0;
+            locked.id = UUID.randomUUID().toString();
+        }
 
         binding.normal.setChecked(true);
 
@@ -93,6 +105,7 @@ public class DepositFund extends BottomSheetDialogFragment {
             String type = binding.normal.isChecked() ? Constants.NORMAL : Constants.LOCK;
             SavingModel savingModel = new SavingModel();
             savingModel.id = UUID.randomUUID().toString();
+
             double amount = binding.normal.isChecked() ? normal.amount : locked.amount;
             savingModel.amount = Double.parseDouble(binding.amount.getEditText().getText().toString()) + amount;
             Constants.databaseReference().child(Constants.SAVING).child(Constants.auth().getCurrentUser().getUid()).child(type).setValue(savingModel).addOnSuccessListener(unused -> dismiss());
