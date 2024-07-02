@@ -37,7 +37,10 @@ import java.util.Locale;
 public class Constants {
     public static Dialog dialog;
     public static final String STASH_USER = "STASH_USER";
+    public static final String RUNNING_TOPICS = "RUNNING_TOPICS";
     public static final String USER = "USER";
+    public static final String STATUS = "STATUS";
+    public static final String KEY = "KEY";
     public static final String CHATS = "CHATS";
     public static final String SAVING = "SAVING";
     public static final String REPORT = "REPORT";
@@ -46,7 +49,14 @@ public class Constants {
     public static final String TRANSACTIONS = "TRANSACTIONS";
     public static final String LOCK = "LOCK";
     public static final String TIMELINE = "TIMELINE";
+    public static final String LAST_TIME = "LAST_TIME";
     public static final String WITHDRAW = "WITHDRAW";
+    public static final String REMINDERS = "REMINDERS";
+    public static final String TOPIC_KEY = "topic";
+    public static final String TITLE_KEY = "title";
+    public static final String BODY_KEY = "body";
+    public static final String CHAT_ID = "CHAT_ID";
+    public static final String FCM_SERVER_KEY = Stash.getString(Constants.KEY);
     public static final String[] months = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     public static String getCurrentMonth() {
         return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());

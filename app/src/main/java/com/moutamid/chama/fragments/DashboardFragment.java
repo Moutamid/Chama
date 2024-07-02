@@ -421,6 +421,15 @@ public class DashboardFragment extends Fragment {
                                 list.add(model);
                             }
                         }
+
+                        if (list.isEmpty()) {
+                            binding.noTimeline.setVisibility(View.VISIBLE);
+                            binding.timelineRC.setVisibility(View.GONE);
+                        } else {
+                            binding.noTimeline.setVisibility(View.GONE);
+                            binding.timelineRC.setVisibility(View.VISIBLE);
+                        }
+
                         list.sort(Comparator.comparing(timelineModel -> timelineModel.timeline));
                         Collections.reverse(list);
                         TimelineAdapter adapter = new TimelineAdapter(mContext, list);

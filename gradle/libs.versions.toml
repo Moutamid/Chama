@@ -16,6 +16,8 @@ mpandroidchart = "v3.1.0"
 signseekbar = "1.0.6"
 stash = "1.3.2"
 imageview = "3.1.0"
+volley = "1.2.1"
+workRuntime = "2.9.0"
 
 [libraries]
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
@@ -34,6 +36,8 @@ materialdrawer = { module = "com.mikepenz:materialdrawer", version.ref = "materi
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 signseekbar = { module = "com.zhouyou:signseekbar", version.ref = "signseekbar" }
 stash = { module = "com.fxn769:stash", version.ref = "stash" }
+volley = { module = "com.android.volley:volley", version.ref = "volley" }
+work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

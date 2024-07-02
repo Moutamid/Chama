@@ -3,6 +3,7 @@ package com.moutamid.chama.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,7 @@ public class SplashActivity extends AppCompatActivity {
         });
 
         new Handler().postDelayed(() -> {
+            Log.d("MyApp", "onCreate: SPLASH");
             if (Constants.auth().getCurrentUser() != null) {
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();

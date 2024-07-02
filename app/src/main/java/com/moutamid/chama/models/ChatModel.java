@@ -8,6 +8,7 @@ public class ChatModel {
     public long timestamp;
     public String adminID;
     public ArrayList<UserModel> groupMembers;
+
     public ChatModel() {
     }
 

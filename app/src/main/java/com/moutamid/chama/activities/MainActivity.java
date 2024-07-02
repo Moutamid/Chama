@@ -1,18 +1,24 @@
 package com.moutamid.chama.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 
 import com.fxn.stash.Stash;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivityMainBinding;
 import com.moutamid.chama.fragments.HomeFragment;
@@ -40,11 +46,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         binding.navView.setCheckedItem(R.id.home);
 
+        FirebaseMessaging.getInstance().subscribeToTopic(Constants.auth().getCurrentUser().getUid());
+
         binding.search.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
         binding.addGroup.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
         binding.addPeople.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
         disableMessageLayout();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS);
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1011);
+            }
+        }
+
+        FirebaseDatabase.getInstance().getReference().child("server_key").get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    String key = dataSnapshot.getValue(String.class);
+                    Log.d(TAG, "onCreate: " + key);
+                    Stash.put(Constants.KEY, key);
+                });
     }
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onResume() {

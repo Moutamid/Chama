@@ -119,11 +119,26 @@
             app:strokeColor="@color/grey"
             app:cardElevation="0dp">
 
-            <androidx.recyclerview.widget.RecyclerView
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/timeline_layout"
-                android:id="@+id/timelineRC" />
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:listitem="@layout/timeline_layout"
+                    android:id="@+id/timelineRC" />
+
+                <TextView
+                    android:id="@+id/noTimeline"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="@color/text3"
+                    android:text="No data available" />
+
+            </RelativeLayout>
 
         </com.google.android.material.card.MaterialCardView>
 

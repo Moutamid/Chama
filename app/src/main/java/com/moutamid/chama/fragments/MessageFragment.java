@@ -27,8 +27,6 @@ import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
 
 
 public class MessageFragment extends Fragment {

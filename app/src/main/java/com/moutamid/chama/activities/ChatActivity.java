@@ -1,6 +1,9 @@
 package com.moutamid.chama.activities;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -8,11 +11,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,10 +32,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.ChatAdapter;
 import com.moutamid.chama.bottomsheets.ChatMenu;
@@ -40,40 +49,120 @@ import com.moutamid.chama.listener.FundTransfer;
 import com.moutamid.chama.listener.ImageSelectionListener;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
+import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.notifications.NotificationScheduler;
 import com.moutamid.chama.utilis.Constants;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
     ActivityChatBinding binding;
+    String status = "";
     ChatModel chatModel;
     ArrayList<MessageModel> list;
     ChatAdapter adapter;
     private static final int PICK_FROM_GALLERY = 1001;
     Uri imageURI;
+    String currentDate;
+    final Calendar calendar = Calendar.getInstance();
+    SimpleDateFormat dateFormat;
 
     @Override
     protected void onResume() {
         super.onResume();
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
-        if (!chatModel.isGroup || !chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
-            binding.more.setVisibility(View.GONE);
+        if (!chatModel.isGroup) {
+            getUserStatus();
+        } else {
+            Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        String s = snapshot.getValue(String.class);
+                        binding.status.setText(s);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
+
+        Constants.databaseReference().child(Constants.REMINDERS).child(chatModel.id).child("isReminder")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            boolean reminder = Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+                            int i = reminder ? View.VISIBLE : View.GONE;
+                            binding.reminder.setVisibility(i);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+        Constants.databaseReference().child(Constants.RUNNING_TOPICS).child(chatModel.id)
+                        .addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    String topic = snapshot.getValue(String.class);
+                                    if (topic.isEmpty()){
+                                        binding.running.setVisibility(View.GONE);
+                                        binding.topic.setText(topic);
+                                    } else {
+                                        binding.running.setVisibility(View.VISIBLE);
+                                        binding.topic.setText(topic);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
 
         binding.name.setText(chatModel.name);
         Glide.with(this).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.image);
-
+        list.clear();
         fetchMessages();
+    }
 
+    private void getUserStatus() {
+        Constants.databaseReference().child(Constants.STATUS).child(chatModel.userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String s = snapshot.getValue(String.class);
+                    if (s.equals("online") || s.equals("offline")) status = s;
+                    binding.status.setText(s);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void fetchMessages() {
@@ -133,7 +222,7 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         Constants.initDialog(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -145,7 +234,26 @@ public class ChatActivity extends AppCompatActivity {
         binding.back.setOnClickListener(v -> onBackPressed());
 
         binding.more.setOnClickListener(v -> {
-            startActivity(new Intent(this, GroupSettingActivity.class));
+            PopupMenu menu = new PopupMenu(this, v);
+            menu.inflate(R.menu.popup_nav);
+
+            Menu popupMenu = menu.getMenu();
+            if (!chatModel.isGroup) {
+                popupMenu.getItem(0).setVisible(false);
+            }
+            menu.show();
+
+            menu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.setting) {
+                    startActivity(new Intent(this, GroupSettingActivity.class));
+                } else if (item.getItemId() == R.id.reminder) {
+                    showCalender();
+                } else if (item.getItemId() == R.id.run) {
+                    runTopic();
+                }
+                return true;
+            });
+
         });
 
         list = new ArrayList<>();
@@ -169,11 +277,17 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String value;
                 if (s.toString().isEmpty()) {
+                    value = status;
                     binding.clip.setVisibility(View.VISIBLE);
                 } else {
+                    UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+                    value = userModel.name + " typing...";
                     binding.clip.setVisibility(View.GONE);
                 }
+                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(value);
+                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(value);
             }
 
             @Override
@@ -188,6 +302,136 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        binding.end.setOnClickListener(v -> {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("End this topic")
+                    .setMessage("Are you sure you want to end this topic for all?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        dialog.dismiss();
+                        Constants.databaseReference().child(Constants.RUNNING_TOPICS).child(chatModel.id).setValue("");
+                    }).setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+
+    }
+
+    private void runTopic() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.running_topic);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setCancelable(true);
+        dialog.show();
+
+        TextInputLayout topic = dialog.findViewById(R.id.topic);
+        MaterialButton run = dialog.findViewById(R.id.run);
+        MaterialButton close = dialog.findViewById(R.id.close);
+
+        close.setOnClickListener(v ->  dialog.dismiss());
+
+        run.setOnClickListener(v -> {
+            if (topic.getEditText().getText().toString().isEmpty()){
+                topic.setErrorEnabled(true);
+                topic.getEditText().setError("Topic is empty");
+            } else {
+                dialog.dismiss();
+                String s = topic.getEditText().getText().toString().trim();
+                Constants.databaseReference().child(Constants.RUNNING_TOPICS).child(chatModel.id).setValue(s);
+                String message = "Running topic" + (chatModel.isGroup ? " in " : " with ") + chatModel.name + " is " + s;
+                addTimeline("Running Topic", message);
+            }
+        });
+
+    }
+
+    private void showCalender() {
+        DatePickerDialog.OnDateSetListener date = (datePicker, year, month, day) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            showTimePicker();
+        };
+        new DatePickerDialog(this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void showTimePicker() {
+        TimePickerDialog.OnTimeSetListener time = (view, hourOfDay, minute) -> {
+            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            calendar.set(Calendar.MINUTE, minute);
+            setReminder();
+        };
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, time,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                false);
+
+        timePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Set Time", timePickerDialog);
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", timePickerDialog);
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Clear", (dialog, which) -> {
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+        });
+
+        timePickerDialog.show();
+    }
+
+    private void setReminder() {
+        binding.reminder.setVisibility(View.VISIBLE);
+        long delayInMillis = calendar.getTime().getTime();
+        Log.d(TAG, "setReminder: " + delayInMillis);
+        Log.d(TAG, "setReminder: " + calendar.getTime().getTime());
+        String[] topics;
+        List<String> topicsList = new ArrayList<>();
+        if (chatModel.isGroup) {
+            for (UserModel users : chatModel.groupMembers) {
+                topicsList.add(users.id);
+            }
+            topics = topicsList.toArray(new String[0]);
+        } else {
+            topics = new String[]{Constants.auth().getCurrentUser().getUid(), chatModel.userID};
+        }
+
+        String title = "Meeting Reminder";
+        String body = "Reminder of impending meeting" + (chatModel.isGroup ? " in " : " with ") + chatModel.name;
+        NotificationScheduler.scheduleAlarmNotification(this, calendar, topics, title, body, chatModel.id);
+
+        Map<String, Object> reminder = new HashMap<>();
+        reminder.put("isReminder", true);
+        Constants.databaseReference().child(Constants.REMINDERS).child(chatModel.id).updateChildren(reminder);
+
+        addTimeline("Impending Meeting", body);
+    }
+
+    private void addTimeline(String title, String message) {
+        String[] ids;
+        List<String> topicsList = new ArrayList<>();
+        if (chatModel.isGroup) {
+            for (UserModel users : chatModel.groupMembers) {
+                topicsList.add(users.id);
+            }
+            ids = topicsList.toArray(new String[0]);
+        } else {
+            ids = new String[]{Constants.auth().getCurrentUser().getUid(), chatModel.userID};
+        }
+
+        TimelineModel timelineModel = new TimelineModel();
+        timelineModel.isChat = true;
+        timelineModel.id = UUID.randomUUID().toString();
+        timelineModel.chatID = chatModel.id;
+        timelineModel.timeline = new Date().getTime();
+        timelineModel.name = title;
+        timelineModel.desc = message;
+
+        for (String id : ids) {
+            Constants.databaseReference().child(Constants.TIMELINE).child(id)
+                    .child(timelineModel.id).setValue(timelineModel).addOnSuccessListener(unused -> {
+                        // Success
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 
     FundTransfer fundTransfer = new FundTransfer() {
@@ -300,12 +544,16 @@ public class ChatActivity extends AppCompatActivity {
                                         Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
                                                 .addOnSuccessListener(unused2 -> {
                                                     binding.message.setText("");
+                                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
                                                 });
                                     }
                                 } else {
                                     Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
                                             .addOnSuccessListener(unused2 -> {
                                                 binding.message.setText("");
+                                                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
                                             });
                                 }
                             });
@@ -344,16 +592,27 @@ public class ChatActivity extends AppCompatActivity {
                                         Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
                                                 .addOnSuccessListener(unused2 -> {
                                                     binding.message.setText("");
+                                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
                                                 });
                                     }
                                 } else {
                                     Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
                                             .addOnSuccessListener(unused2 -> {
                                                 binding.message.setText("");
+                                                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
                                             });
                                 }
                             });
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+        else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(status);
     }
 
     @Override
