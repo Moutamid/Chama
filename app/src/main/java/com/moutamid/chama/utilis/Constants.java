@@ -56,7 +56,6 @@ public class Constants {
     public static final String TITLE_KEY = "title";
     public static final String BODY_KEY = "body";
     public static final String CHAT_ID = "CHAT_ID";
-    public static final String FCM_SERVER_KEY = Stash.getString(Constants.KEY);
     public static final String[] months = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     public static String getCurrentMonth() {
         return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());
