@@ -82,6 +82,39 @@ public class ChatActivity extends AppCompatActivity {
         super.onResume();
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
+        if (chatModel.isGroup && chatModel.isSocoGroup) {
+            binding.joinGroup.setVisibility(View.VISIBLE);
+
+            if (!chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())){
+                binding.more.setVisibility(View.GONE);
+            }
+
+            for (UserModel users : chatModel.groupMembers) {
+                if (users.id.equals(Constants.auth().getCurrentUser().getUid())) {
+                    binding.joinGroup.setVisibility(View.GONE);
+                    break;
+                }
+            }
+        } else {
+            binding.joinGroup.setVisibility(View.GONE);
+        }
+
+        binding.join.setOnClickListener(v -> {
+            UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+            ArrayList<UserModel> users = new ArrayList<>(chatModel.groupMembers);
+            stashUser.role = "UNKNOWN_ROLE";
+            users.add(stashUser);
+            chatModel.groupMembers = new ArrayList<>(users);
+            Log.d(TAG, "onResume: " + users.size());
+            Constants.databaseReference().child(Constants.SOCO)
+                    .child(chatModel.id).setValue(chatModel).addOnSuccessListener(unused -> {
+                        Log.d(TAG, "onResume: JOINED");
+                        binding.joinGroup.setVisibility(View.GONE);
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        });
+
         if (!chatModel.isGroup) {
             getUserStatus();
         } else {
@@ -584,27 +617,42 @@ public class ChatActivity extends AppCompatActivity {
                     map.put("timestamp", model.timestamp);
                     map.put("lastMessage", m);
                     map.put("isMoneyShared", false);
-                    Constants.databaseReference().child(Constants.CHATS).child(stashUser.id).child(chatModel.id).updateChildren(map)
-                            .addOnSuccessListener(unused1 -> {
-                                if (chatModel.isGroup) {
-                                    for (UserModel userModel : chatModel.groupMembers) {
-                                        Log.d(TAG, "sendImage: " + userModel.id);
-                                        Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
-                                                .addOnSuccessListener(unused2 -> {
-                                                    binding.message.setText("");
-                                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
-                                                });
-                                    }
-                                } else {
-                                    Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
-                                            .addOnSuccessListener(unused2 -> {
-                                                binding.message.setText("");
-                                                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
-                                            });
-                                }
-                            });
+
+                    if (chatModel.isGroup && chatModel.isSocoGroup) {
+                        Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).updateChildren(map)
+                                .addOnSuccessListener(unused2 -> {
+                                    binding.message.setText("");
+                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                });
+                    } else {
+                        update(map);
+                    }
+                });
+    }
+
+    private void update(Map<String, Object> map) {
+        UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+        Constants.databaseReference().child(Constants.CHATS).child(stashUser.id).child(chatModel.id).updateChildren(map)
+                .addOnSuccessListener(unused1 -> {
+                    if (chatModel.isGroup) {
+                        for (UserModel userModel : chatModel.groupMembers) {
+                            Log.d(TAG, "sendImage: " + userModel.id);
+                            Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
+                                    .addOnSuccessListener(unused2 -> {
+                                        binding.message.setText("");
+                                        if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                        else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                    });
+                        }
+                    } else {
+                        Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
+                                .addOnSuccessListener(unused2 -> {
+                                    binding.message.setText("");
+                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                });
+                    }
                 });
     }
 

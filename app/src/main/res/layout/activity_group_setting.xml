@@ -104,6 +104,13 @@
                 android:textColor="@color/text2"
                 android:textStyle="italic" />
 
+            <TextView
+                android:id="@+id/size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="256"
+                android:textColor="@color/text2"/>
+
             <ImageView
                 android:id="@+id/addMore"
                 android:layout_width="24dp"

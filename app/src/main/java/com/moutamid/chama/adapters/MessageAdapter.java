@@ -3,6 +3,7 @@ package com.moutamid.chama.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageVH> {
     Context context;
     ArrayList<ChatModel> list;
+    private static final String TAG = "MessageAdapter";
 
     public MessageAdapter(Context context, ArrayList<ChatModel> list) {
         this.context = context;
@@ -44,7 +46,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageVH holder, int position) {
         ChatModel model = list.get(holder.getAbsoluteAdapterPosition());
-
+        Log.d(TAG, "onBindViewHolder: " + model.name);
         holder.name.setText(model.name);
         holder.message.setText(model.lastMessage);
         holder.date.setText(Constants.getTime(model.timestamp));

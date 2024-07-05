@@ -17,4 +17,11 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowDisablePreview">true</item>
     </style>
+
+    <style name="BottomSheetAnim">
+        <item name="android:windowEnterAnimation">@animator/slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@animator/slide_out_bottom</item>
+    </style>
+
+
 </resources>

@@ -7,12 +7,14 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.moutamid.chama.R;
 import com.moutamid.chama.listener.GroupMembers;
@@ -28,10 +30,11 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     Context context;
     ArrayList<UserModel> list;
     ArrayList<UserModel> listAll;
-
-    public MembersAdapter(GroupMembers groupMembers, Context context, ArrayList<UserModel> list) {
+    String adminID;
+    public MembersAdapter(GroupMembers groupMembers, Context context, ArrayList<UserModel> list, String adminID) {
         this.groupMembers = groupMembers;
         this.context = context;
+        this.adminID = adminID;
         this.list = list;
         this.listAll = new ArrayList<>(list);
     }
@@ -46,22 +49,43 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     public void onBindViewHolder(@NonNull MembersVH holder, int position) {
         UserModel model = list.get(holder.getAbsoluteAdapterPosition());
         holder.name.setText(model.name);
-        String role = model.id.equals(Constants.auth().getCurrentUser().getUid()) ? "admin" : "";
+        String role;
+        if (model.role != null) {
+            role = model.role.equals("UNKNOWN_ROLE") ? "" : model.role;
+        } else {
+            role = model.id.equals(adminID) ? "OWNER" : "";
+        }
         holder.role.setText(role);
 
         Glide.with(context).load(model.image).placeholder(R.drawable.profile_icon).into(holder.image);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!model.id.equals(Constants.auth().getCurrentUser().getUid())) {
-                    new MaterialAlertDialogBuilder(context)
-                            .setMessage("Remove this user from this group?")
-                            .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                            .setPositiveButton("Yes", (dialog, which) -> {
-                                dialog.dismiss();
-                                groupMembers.onRemove(list.get(holder.getAbsoluteAdapterPosition()), holder.getAbsoluteAdapterPosition());
-                            })
-                            .show();
+                if (!model.id.equals(adminID)) {
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View customView = inflater.inflate(R.layout.detail_menu, null);
+                    PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                    popupWindow.showAsDropDown(v);
+                    MaterialButton assignRule = customView.findViewById(R.id.assignRule);
+                    MaterialButton remove = customView.findViewById(R.id.remove);
+
+                    assignRule.setOnClickListener(v1 -> {
+                        popupWindow.dismiss();
+                        groupMembers.assignRule(list.get(holder.getAbsoluteAdapterPosition()), holder.getAbsoluteAdapterPosition());
+                    });
+
+                    remove.setOnClickListener(v1 -> {
+                        popupWindow.dismiss();
+                        new MaterialAlertDialogBuilder(context)
+                                .setMessage("Remove this user from this group?")
+                                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                                .setPositiveButton("Yes", (dialog, which) -> {
+                                    dialog.dismiss();
+                                    groupMembers.onRemove(list.get(holder.getAbsoluteAdapterPosition()), holder.getAbsoluteAdapterPosition());
+                                })
+                                .show();
+                    });
+
                 }
                 return true;
             }

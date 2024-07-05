@@ -91,6 +91,7 @@ public class GroupSelectionActivity extends AppCompatActivity {
         ChatModel senderModel = new ChatModel();
         ChatModel receiverModel = new ChatModel();
         UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+        stashUser.role = "OWNER";
         currentItems.add(stashUser);
 
         String ID = UUID.randomUUID().toString();
@@ -113,8 +114,12 @@ public class GroupSelectionActivity extends AppCompatActivity {
 
         senderModel.isGroup = true;
         receiverModel.isGroup = true;
+
         senderModel.isMoneyShared = false;
+        senderModel.isSocoGroup = false;
+
         receiverModel.isMoneyShared = false;
+        receiverModel.isSocoGroup = false;
 
         senderModel.adminID = Constants.auth().getCurrentUser().getUid();
         receiverModel.adminID = Constants.auth().getCurrentUser().getUid();
@@ -153,6 +158,7 @@ public class GroupSelectionActivity extends AppCompatActivity {
         @Override
         public void selected(UserModel userModel) {
             userModel.password = null;
+            userModel.role = "UNKNOWN_ROLE";
             currentItems.add(userModel);
         }
 

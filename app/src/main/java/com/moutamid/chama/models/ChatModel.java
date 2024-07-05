@@ -7,6 +7,7 @@ public class ChatModel {
     public boolean isMoneyShared, isGroup;
     public long timestamp;
     public String adminID;
+    public boolean isSocoGroup;
     public ArrayList<UserModel> groupMembers;
 
     public ChatModel() {

@@ -1,11 +1,20 @@
 package com.moutamid.chama.activities;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -24,8 +33,12 @@ import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 public class GroupSettingActivity extends AppCompatActivity {
     ActivityGroupSettingBinding binding;
@@ -74,8 +87,8 @@ public class GroupSettingActivity extends AppCompatActivity {
 
         binding.usersRC.setLayoutManager(new LinearLayoutManager(this));
         binding.usersRC.setHasFixedSize(false);
-
-        adapter = new MembersAdapter(groupMembers, this, chatModel.groupMembers);
+        binding.size.setText(String.valueOf(chatModel.groupMembers.size()));
+        adapter = new MembersAdapter(groupMembers, this, chatModel.groupMembers, chatModel.adminID);
         binding.usersRC.setAdapter(adapter);
 
         binding.search.addTextChangedListener(new TextWatcher() {
@@ -98,6 +111,12 @@ public class GroupSettingActivity extends AppCompatActivity {
         binding.addMore.setOnClickListener(v -> {
 
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Stash.put(Constants.CHATS, chatModel);
     }
 
     private void uploadData(String image) {
@@ -151,6 +170,58 @@ public class GroupSettingActivity extends AppCompatActivity {
                         .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers);
             }
         }
+
+        @Override
+        public void assignRule(UserModel userModel, int pos) {
+            showDialog(userModel, pos);
+        }
     };
 
+    private void showDialog(UserModel userModel, int pos) {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.assign_role);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomSheetAnim;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.setCancelable(true);
+        dialog.show();
+
+        Button assign = dialog.findViewById(R.id.assign);
+
+        RadioGroup rulesGroup = dialog.findViewById(R.id.rulesGroup);
+
+        assign.setOnClickListener(v -> {
+            int checkedId = rulesGroup.getCheckedRadioButtonId();
+            String selected;
+            if (checkedId == R.id.moneyRole) {
+                selected = "Handle Money";
+            } else if (checkedId == R.id.edit) {
+                selected = "Edit Group";
+            } else if (checkedId == R.id.owner) {
+                selected = "OWNER";
+            } else selected = "UNKNOWN_ROLE";
+            Map<String, Object> map = new HashMap<>();
+            map.put("role", selected);
+            Log.d(TAG, "showDialog: " + selected);
+            ArrayList<UserModel> users = new ArrayList<>();
+            for (UserModel user : chatModel.groupMembers) {
+                if (user.id.equals(userModel.id)) {
+                    user.role = selected;
+                }
+                users.add(user);
+            }
+            chatModel.groupMembers = new ArrayList<>(users);
+            if (chatModel.isGroup && chatModel.isSocoGroup) {
+                Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).setValue(chatModel);
+            }
+            adapter.notifyItemChanged(pos);
+            dialog.dismiss();
+        });
+        Log.d(TAG, "showDialog: ");
+    }
+
+
+    private static final String TAG = "GroupSettingActivity";
 }

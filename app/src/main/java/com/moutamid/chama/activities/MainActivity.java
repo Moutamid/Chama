@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -22,8 +23,13 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivityMainBinding;
 import com.moutamid.chama.fragments.HomeFragment;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     ActivityMainBinding binding;
@@ -68,6 +74,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
+/*    private void createGroup() {
+        ChatModel senderModel = new ChatModel();
+
+        ArrayList<UserModel> currentItems = new ArrayList<>();
+        UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+        currentItems.add(stashUser);
+
+        String ID = UUID.randomUUID().toString();
+
+        senderModel.id = ID;
+        senderModel.userID = "";
+        senderModel.money = "";
+
+        senderModel.timestamp = new Date().getTime();
+
+        senderModel.name = "SOCO Group";
+        senderModel.image = "";
+
+        senderModel.isGroup = true;
+        senderModel.isSocoGroup = true;
+        senderModel.isMoneyShared = false;
+
+        senderModel.adminID = Constants.auth().getCurrentUser().getUid();
+
+        senderModel.lastMessage = "Start Messaging";
+        senderModel.groupMembers = new ArrayList<>(currentItems);
+
+        Constants.databaseReference().child(Constants.SOCO)
+                .child(ID).setValue(senderModel).addOnSuccessListener(unused -> {
+
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }*/
     private static final String TAG = "MainActivity";
 
     @Override

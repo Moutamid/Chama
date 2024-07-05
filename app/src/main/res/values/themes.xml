@@ -32,4 +32,10 @@
     </style>
 
     <style name="Theme.Chama" parent="Base.Theme.Chama" />
+
+    <style name="BottomSheetAnim">
+        <item name="android:windowEnterAnimation">@animator/slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@animator/slide_out_bottom</item>
+    </style>
+
 </resources>
