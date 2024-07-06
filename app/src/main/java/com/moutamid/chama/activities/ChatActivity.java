@@ -51,6 +51,7 @@ import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.notifications.FcmNotificationsSender;
 import com.moutamid.chama.notifications.NotificationScheduler;
 import com.moutamid.chama.utilis.Constants;
 
@@ -624,6 +625,12 @@ public class ChatActivity extends AppCompatActivity {
                                     binding.message.setText("");
                                     if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
                                     else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                    ArrayList<String> ids = new ArrayList<>();
+                                    for (UserModel userModel : chatModel.groupMembers) {
+                                        if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(userModel.id);
+                                    }
+                                    String[] id = ids.toArray(new String[0]);
+                                    new FcmNotificationsSender(id, chatModel.name, m, this, chatModel.id, false).SendNotifications();
                                 });
                     } else {
                         update(map);
@@ -641,16 +648,23 @@ public class ChatActivity extends AppCompatActivity {
                             Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
                                     .addOnSuccessListener(unused2 -> {
                                         binding.message.setText("");
-                                        if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                        else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                        Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
                                     });
                         }
+                        ArrayList<String> ids = new ArrayList<>();
+                        for (UserModel userModel : chatModel.groupMembers) {
+                            if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(userModel.id);
+                        }
+                        String[] id = ids.toArray(new String[0]);
+                        Log.d(TAG, "update: " + id.length);
+                        new FcmNotificationsSender(id, chatModel.name, map.get("lastMessage").toString(), this, chatModel.id, false).SendNotifications();
                     } else {
                         Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
                                 .addOnSuccessListener(unused2 -> {
                                     binding.message.setText("");
-                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                    Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                    String[] id = new String[]{chatModel.userID};
+                                    new FcmNotificationsSender(id, chatModel.name, map.get("lastMessage").toString(), this, chatModel.id, false).SendNotifications();
                                 });
                     }
                 });

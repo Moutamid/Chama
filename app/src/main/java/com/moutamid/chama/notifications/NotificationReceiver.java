@@ -17,7 +17,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             String title = intent.getStringExtra(Constants.TITLE_KEY);
             String body = intent.getStringExtra(Constants.BODY_KEY);
             String CHAT_ID = intent.getStringExtra(Constants.CHAT_ID);
-            new FcmNotificationsSender(topics, title, body, context, CHAT_ID).SendNotifications();
+            new FcmNotificationsSender(topics, title, body, context, CHAT_ID, true).SendNotifications();
         } else {
             Log.d(TAG, "onReceive: NULL");
         }

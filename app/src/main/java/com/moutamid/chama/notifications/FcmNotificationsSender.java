@@ -28,12 +28,14 @@ public class FcmNotificationsSender {
     String title;
     String CHAT_ID;
     String[] userFcmToken;
+    boolean isReminder;
 
-    public FcmNotificationsSender(String[] userFcmToken2, String title2, String body2, Context mContext, String CHAT_ID) {
+    public FcmNotificationsSender(String[] userFcmToken2, String title2, String body2, Context mContext, String CHAT_ID, boolean isReminder) {
         fcmServerKey = Stash.getString(Constants.KEY);
         this.userFcmToken = userFcmToken2;
         this.title = title2;
         this.body = body2;
+        this.isReminder = isReminder;
         this.mContext = mContext;
         this.CHAT_ID = CHAT_ID;
     }
@@ -52,11 +54,13 @@ public class FcmNotificationsSender {
                 mainObj.put("notification", notiObject);
                 this.requestQueue.add(new JsonObjectRequest(1, "https://fcm.googleapis.com/fcm/send", mainObj, new Response.Listener<JSONObject>() {
                     public void onResponse(JSONObject response) {
-                        Stash.clear(Constants.LAST_TIME);
-                        Map<String, Object> reminder = new HashMap<>();
-                        reminder.put("isReminder", false);
-                        Constants.databaseReference().child(Constants.REMINDERS).child(CHAT_ID).updateChildren(reminder);
-                        Log.e(TAG, "onResponse: response: " + response.toString());
+                        if (isReminder) {
+                            Stash.clear(Constants.LAST_TIME);
+                            Map<String, Object> reminder = new HashMap<>();
+                            reminder.put("isReminder", false);
+                            Constants.databaseReference().child(Constants.REMINDERS).child(CHAT_ID).updateChildren(reminder);
+                            Log.e(TAG, "onResponse: response: " + response.toString());
+                        }
                     }
                 }, new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {

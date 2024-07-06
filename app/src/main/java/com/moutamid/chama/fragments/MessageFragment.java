@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.GroupSelectionActivity;
 import com.moutamid.chama.adapters.MessageAdapter;
@@ -25,6 +27,8 @@ import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class MessageFragment extends Fragment {
@@ -75,41 +79,61 @@ public class MessageFragment extends Fragment {
         super.onResume();
         list = new ArrayList<>();
         Constants.databaseReference().child(Constants.SOCO)
-                .get().addOnSuccessListener(dataSnapshot -> {
-                    Log.d(TAG, "onResume: SOCO");
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        ChatModel model = snapshot.getValue(ChatModel.class);
-                        list.add(model);
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Log.d(TAG, "onResume: SOCO");
+                        list.clear();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            ChatModel model = snapshot.getValue(ChatModel.class);
+                            list.add(model);
+                        }
+                        Log.d(TAG, "onResume: " + list.size());
+                        getMessages();
                     }
-                    Log.d(TAG, "onResume: " + list.size());
-                    getMessages();
-                }).addOnFailureListener(e -> {
-                    dialog.dismiss();
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        dialog.dismiss();
+                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
     private void getMessages() {
         Constants.databaseReference().child(Constants.CHATS)
                 .child(Constants.auth().getCurrentUser().getUid())
-                .get().addOnSuccessListener(dataSnapshot -> {
-                    if (dataSnapshot.exists()) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            ChatModel model = snapshot.getValue(ChatModel.class);
-                            list.add(model);
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            if (!list.isEmpty()) {
+                                ChatModel firstItem = list.get(0);
+                                list.clear();
+                                list.add(firstItem);
+                            }
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                ChatModel model = snapshot.getValue(ChatModel.class);
+                                list.add(model);
+                            }
                         }
+                        Log.d(TAG, "getMessages: " + list.size());
+                        if (!list.isEmpty()) {
+                            binding.noLayout.setVisibility(View.GONE);
+                            binding.messagesRC.setVisibility(View.VISIBLE);
+                        }
+                        list.sort(Comparator.comparing(chatModel -> chatModel.timestamp));
+                        Collections.reverse(list);
+                        MessageAdapter adapter = new MessageAdapter(mContext, list);
+                        binding.messagesRC.setAdapter(adapter);
+                        dialog.dismiss();
                     }
-                    Log.d(TAG, "getMessages: " + list.size());
-                    if (!list.isEmpty()) {
-                        binding.noLayout.setVisibility(View.GONE);
-                        binding.messagesRC.setVisibility(View.VISIBLE);
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError e) {
+                        dialog.dismiss();
+                        Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    MessageAdapter adapter = new MessageAdapter(mContext, list);
-                    binding.messagesRC.setAdapter(adapter);
-                    dialog.dismiss();
-                }).addOnFailureListener(e -> {
-                    dialog.dismiss();
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 }
