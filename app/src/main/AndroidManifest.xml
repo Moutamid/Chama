@@ -29,6 +29,9 @@
         android:theme="@style/Theme.Chama"
         tools:targetApi="31">
         <activity
+            android:name=".activities.AddMembersActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.SavingActivity"
             android:exported="false" />
         <activity
@@ -85,15 +88,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAuIxeEpQQgN84bBitDRksZTcLHtIKSAeY" />
 
-        <receiver android:name=".notifications.BootReceiver"
+        <receiver
+            android:name=".notifications.BootReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".notifications.NotificationReceiver"
             android:enabled="true"
@@ -111,7 +115,6 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
     </application>
 
 </manifest>

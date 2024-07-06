@@ -108,8 +108,12 @@ public class GroupSettingActivity extends AppCompatActivity {
             }
         });
 
-        binding.addMore.setOnClickListener(v -> {
+        if (chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
+            binding.addMore.setVisibility(View.VISIBLE);
+        } else binding.addMore.setVisibility(View.GONE);
 
+        binding.addMore.setOnClickListener(v -> {
+            startActivity(new Intent(this, AddMembersActivity.class));
         });
     }
 

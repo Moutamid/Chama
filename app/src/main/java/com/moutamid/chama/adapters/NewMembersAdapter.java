@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,62 +25,42 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserVH> implements Filterable {
-
+public class NewMembersAdapter extends RecyclerView.Adapter<NewMembersAdapter.MembersVH> implements Filterable {
     Context context;
     ArrayList<UserModel> list;
     ArrayList<UserModel> listAll;
-    boolean createGroup;
     GroupCreateListener groupCreateListener;
 
-    public UserAdapter(Context context, ArrayList<UserModel> list, boolean createGroup, GroupCreateListener groupCreateListener) {
+    public NewMembersAdapter(Context context, ArrayList<UserModel> list, GroupCreateListener groupCreateListener) {
         this.context = context;
         this.list = list;
         this.listAll = new ArrayList<>(list);
-        this.createGroup = createGroup;
         this.groupCreateListener = groupCreateListener;
     }
 
     @NonNull
     @Override
-    public UserVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new UserVH(LayoutInflater.from(context).inflate(R.layout.group_item, parent, false));
+    public MembersVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new MembersVH(LayoutInflater.from(context).inflate(R.layout.group_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserVH holder, int position) {
+    public void onBindViewHolder(@NonNull MembersVH holder, int position) {
         UserModel userModel = list.get(holder.getAbsoluteAdapterPosition());
-        if (createGroup) {
-            holder.radio.setVisibility(View.VISIBLE);
-        } else {
-            holder.radio.setVisibility(View.GONE);
-        }
+        holder.radio.setVisibility(View.VISIBLE);
         holder.name.setText(userModel.name);
         Glide.with(context).load(userModel.image).placeholder(R.drawable.profile_icon).into(holder.image);
-
         holder.itemView.setOnClickListener(v -> {
-            if (createGroup){
-                holder.radio.setChecked(!holder.radio.isChecked());
-            } else {
-                groupCreateListener.createChat(userModel);
+            holder.radio.setChecked(!holder.radio.isChecked());
+        });
+        holder.radio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) groupCreateListener.selected(userModel);
+                else groupCreateListener.unselected(userModel);
             }
         });
 
-        if (createGroup){
-            holder.radio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) groupCreateListener.selected(userModel);
-                    else groupCreateListener.unselected(userModel);
-                }
-            });
-        }
-
-    }
-
-    @Override
-    public int getItemCount() {
-        return list.size();
     }
 
     @Override
@@ -112,12 +93,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserVH> implem
         }
     };
 
-    public class UserVH extends RecyclerView.ViewHolder {
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
+    public class MembersVH extends RecyclerView.ViewHolder{
         ImageView image;
         TextView name;
         MaterialRadioButton radio;
-
-        public UserVH(@NonNull View itemView) {
+        public MembersVH(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             name = itemView.findViewById(R.id.name);

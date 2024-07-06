@@ -664,6 +664,7 @@ public class ChatActivity extends AppCompatActivity {
                                     binding.message.setText("");
                                     Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
                                     String[] id = new String[]{chatModel.userID};
+                                    Log.d(TAG, "update: IND " + id.length);
                                     new FcmNotificationsSender(id, chatModel.name, map.get("lastMessage").toString(), this, chatModel.id, false).SendNotifications();
                                 });
                     }

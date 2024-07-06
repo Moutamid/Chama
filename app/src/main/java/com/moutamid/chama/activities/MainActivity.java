@@ -52,7 +52,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         binding.navView.setCheckedItem(R.id.home);
 
-        FirebaseMessaging.getInstance().subscribeToTopic(Constants.auth().getCurrentUser().getUid());
+        FirebaseMessaging.getInstance().subscribeToTopic(Constants.auth().getCurrentUser().getUid()).addOnFailureListener(e -> {
+            Log.d(TAG, "onCreate: " + e.getLocalizedMessage());
+        }).addOnSuccessListener(unused -> {
+            Log.d(TAG, "onCreate: SUBSCRIBE");
+        });
 
         binding.search.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
         binding.addGroup.setOnClickListener(v -> startActivity(new Intent(this, GroupSelectionActivity.class)));
