@@ -48,16 +48,29 @@ public class GroupSettingActivity extends AppCompatActivity {
     Uri imageUri;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityGroupSettingBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    protected void onResume() {
+        super.onResume();
         Constants.initDialog(this);
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
         Glide.with(this).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.image);
         binding.name.setText(chatModel.name);
         binding.nameEdit.setText(chatModel.name);
+
+        binding.size.setText(String.valueOf(chatModel.groupMembers.size()));
+        adapter = new MembersAdapter(groupMembers, this, chatModel.groupMembers, chatModel.adminID);
+        binding.usersRC.setAdapter(adapter);
+
+        if (chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
+            binding.addMore.setVisibility(View.VISIBLE);
+        } else binding.addMore.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityGroupSettingBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         binding.name.setOnClickListener(v -> {
             binding.name.setVisibility(View.GONE);
@@ -87,9 +100,6 @@ public class GroupSettingActivity extends AppCompatActivity {
 
         binding.usersRC.setLayoutManager(new LinearLayoutManager(this));
         binding.usersRC.setHasFixedSize(false);
-        binding.size.setText(String.valueOf(chatModel.groupMembers.size()));
-        adapter = new MembersAdapter(groupMembers, this, chatModel.groupMembers, chatModel.adminID);
-        binding.usersRC.setAdapter(adapter);
 
         binding.search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -107,10 +117,6 @@ public class GroupSettingActivity extends AppCompatActivity {
 
             }
         });
-
-        if (chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
-            binding.addMore.setVisibility(View.VISIBLE);
-        } else binding.addMore.setVisibility(View.GONE);
 
         binding.addMore.setOnClickListener(v -> {
             startActivity(new Intent(this, AddMembersActivity.class));
@@ -134,7 +140,6 @@ public class GroupSettingActivity extends AppCompatActivity {
                     .child(chatModel.id).setValue(chatModel).addOnSuccessListener(unused1 -> {
                         if (finalI >= chatModel.groupMembers.size() - 1) {
                             onBackPressed();
-                            Stash.put(Constants.CHATS, chatModel);
                         }
                     }).addOnFailureListener(e -> {
                         Constants.dismissDialog();

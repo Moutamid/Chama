@@ -29,6 +29,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
@@ -42,6 +43,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.ChatAdapter;
+import com.moutamid.chama.adapters.ContributionAdapter;
 import com.moutamid.chama.bottomsheets.ChatMenu;
 import com.moutamid.chama.bottomsheets.WithdrawFunds;
 import com.moutamid.chama.databinding.ActivityChatBinding;
@@ -65,6 +67,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChatActivity extends AppCompatActivity {
     ActivityChatBinding binding;
@@ -81,6 +84,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Constants.initDialog(this);
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
         if (chatModel.isGroup && chatModel.isSocoGroup) {
@@ -257,7 +261,7 @@ public class ChatActivity extends AppCompatActivity {
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        Constants.initDialog(this);
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -275,6 +279,9 @@ public class ChatActivity extends AppCompatActivity {
             if (!chatModel.isGroup) {
                 popupMenu.getItem(0).setVisible(false);
             }
+            if (!chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
+                popupMenu.getItem(3).setVisible(false);
+            }
             menu.show();
 
             menu.setOnMenuItemClickListener(item -> {
@@ -284,10 +291,11 @@ public class ChatActivity extends AppCompatActivity {
                     showCalender();
                 } else if (item.getItemId() == R.id.run) {
                     runTopic();
+                } else if (item.getItemId() == R.id.contribution) {
+                    contributions();
                 }
                 return true;
             });
-
         });
 
         list = new ArrayList<>();
@@ -347,6 +355,37 @@ public class ChatActivity extends AppCompatActivity {
                     .show();
         });
 
+    }
+
+    private void contributions() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.contribution);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.setCancelable(true);
+        dialog.show();
+
+        ArrayList<MessageModel> contributions = list.stream()
+                .filter(messageModel -> messageModel.isMoneyShared)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        RecyclerView contributionsRC = dialog.findViewById(R.id.contributionsRC);
+        TextView noItem = dialog.findViewById(R.id.noItem);
+
+        contributionsRC.setLayoutManager(new LinearLayoutManager(this));
+        contributionsRC.setHasFixedSize(false);
+
+        if (contributions.isEmpty()) {
+            noItem.setVisibility(View.VISIBLE);
+            contributionsRC.setVisibility(View.GONE);
+        } else {
+            noItem.setVisibility(View.GONE);
+            contributionsRC.setVisibility(View.VISIBLE);
+        }
+
+        ContributionAdapter adapter = new ContributionAdapter(this, contributions);
+        contributionsRC.setAdapter(adapter);
     }
 
     private void runTopic() {
@@ -578,16 +617,23 @@ public class ChatActivity extends AppCompatActivity {
                                         Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
                                                 .addOnSuccessListener(unused2 -> {
                                                     binding.message.setText("");
-                                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                                    Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
                                                 });
                                     }
+                                    ArrayList<String> ids = new ArrayList<>();
+                                    for (UserModel users : chatModel.groupMembers) {
+                                        if (!users.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(users.id);
+                                    }
+                                    String[] id = ids.toArray(new String[0]);
+                                    new FcmNotificationsSender(id, chatModel.name, m, this, chatModel.id, false).SendNotifications();
                                 } else {
                                     Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
                                             .addOnSuccessListener(unused2 -> {
                                                 binding.message.setText("");
-                                                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                                Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
+                                                String[] id = new String[]{chatModel.userID};
+                                                Log.d(TAG, "update: IND " + id.length);
+                                                new FcmNotificationsSender(id, chatModel.name, map.get("lastMessage").toString(), this, chatModel.id, false).SendNotifications();
                                             });
                                 }
                             });

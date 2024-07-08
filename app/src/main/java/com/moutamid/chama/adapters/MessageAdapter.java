@@ -2,7 +2,6 @@ package com.moutamid.chama.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +20,7 @@ import com.moutamid.chama.activities.ChatActivity;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.utilis.Constants;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageVH> {
     Context context;
@@ -58,7 +53,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             context.startActivity(new Intent(context, ChatActivity.class));
         });
 
-        if (model.isMoneyShared){
+        if (model.isMoneyShared) {
             holder.moneySharedLayout.setVisibility(View.VISIBLE);
             holder.whoReceive.setText(model.whoShared.split(" - ")[0]);
             holder.money.setText(model.whoShared.split(" - ")[1]);
@@ -70,10 +65,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return list.size();
     }
 
-    public class MessageVH extends RecyclerView.ViewHolder{
+    public class MessageVH extends RecyclerView.ViewHolder {
         ImageView image;
         TextView name, message, date, whoReceive, money;
         LinearLayout moneySharedLayout;
+
         public MessageVH(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);

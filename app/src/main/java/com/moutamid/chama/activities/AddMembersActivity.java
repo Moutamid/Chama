@@ -1,6 +1,7 @@
 package com.moutamid.chama.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Toast;
@@ -89,9 +90,41 @@ public class AddMembersActivity extends AppCompatActivity {
 
         }
     };
+    private static final String TAG = "AddMembersActivity";
 
     private void addMembers() {
-
+        Constants.showDialog();
+        chatModel.groupMembers.addAll(currentItems);
+        ArrayList<UserModel> groupMembers = chatModel.groupMembers;
+        if (chatModel.isSocoGroup) {
+            Constants.databaseReference().child(Constants.SOCO)
+                    .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers)
+                    .addOnSuccessListener(unused -> {
+                        Stash.put(Constants.CHATS, chatModel);
+                        onBackPressed();
+                    })
+                    .addOnFailureListener(e -> {
+                        Constants.dismissDialog();
+                        Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            for (int i = 0; i < groupMembers.size(); i++) {
+                UserModel users = groupMembers.get(i);
+                int finalI = i;
+                Constants.databaseReference().child(Constants.CHATS).child(users.id)
+                        .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers)
+                        .addOnSuccessListener(unused -> {
+                            if (finalI == groupMembers.size()-1) {
+                                Stash.put(Constants.CHATS, chatModel);
+                                onBackPressed();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Constants.dismissDialog();
+                            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+        }
     }
 
     @Override
@@ -110,10 +143,10 @@ public class AddMembersActivity extends AppCompatActivity {
                         list.clear();
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             UserModel userModel = snapshot.getValue(UserModel.class);
-                            for (UserModel users : chatModel.groupMembers) {
-                                if (!userModel.id.equals(users.id)) {
-                                    list.add(userModel);
-                                }
+                            boolean isUnique = chatModel.groupMembers.stream()
+                                    .noneMatch(users -> userModel.id.equals(users.id));
+                            if (isUnique) {
+                                list.add(userModel);
                             }
                         }
                         adapter = new NewMembersAdapter(this, list, groupCreateListener);

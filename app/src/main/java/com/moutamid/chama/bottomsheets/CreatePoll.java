@@ -24,6 +24,7 @@ import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.PollModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.models.Votes;
+import com.moutamid.chama.notifications.FcmNotificationsSender;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
@@ -109,6 +110,12 @@ public class CreatePoll extends BottomSheetDialogFragment {
                                                             }
                                                         });
                                             }
+                                            ArrayList<String> ids = new ArrayList<>();
+                                            for (UserModel userModel : chatModel.groupMembers) {
+                                                if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(userModel.id);
+                                            }
+                                            String[] id = ids.toArray(new String[0]);
+                                            new FcmNotificationsSender(id, chatModel.name, m, requireContext(), chatModel.id, false).SendNotifications();
                                         }
                                     });
                         });

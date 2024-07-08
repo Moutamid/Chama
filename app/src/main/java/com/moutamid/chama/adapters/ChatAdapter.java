@@ -18,7 +18,6 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.moutamid.chama.R;
-import com.moutamid.chama.bottomsheets.WithdrawFunds;
 import com.moutamid.chama.listener.FundTransfer;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.PollModel;
@@ -238,7 +237,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
             holder.message.setText(model.message);
         }
 
-        if (model.isMoneyShared && !model.senderID.equals(Constants.auth().getCurrentUser().getUid())){
+        if (model.isMoneyShared) {
+            if (model.receiverID != null) {
+                if (!model.receiverID.equals(Constants.auth().getCurrentUser().getUid()) && !model.senderID.equals(Constants.auth().getCurrentUser().getUid())) {
+                    holder.withdraw.setVisibility(View.GONE);
+                    holder.receipt.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        if (model.isMoneyShared && !model.senderID.equals(Constants.auth().getCurrentUser().getUid())) {
             holder.withdraw.setOnClickListener(v -> fundTransfer.onWithdraw(model));
             holder.receipt.setOnClickListener(v -> fundTransfer.onReceipt(model));
         }
@@ -258,6 +266,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatVH> {
         ImageView profile_icon;
         RadioGroup radio_group;
         MaterialButton withdraw, receipt;
+
         public ChatVH(@NonNull View itemView) {
             super(itemView);
             profile_icon = itemView.findViewById(R.id.profile);

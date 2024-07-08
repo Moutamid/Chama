@@ -25,6 +25,7 @@ import com.moutamid.chama.models.SavingModel;
 import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.TransactionModel;
 import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.notifications.FcmNotificationsSender;
 import com.moutamid.chama.utilis.Constants;
 import com.zhouyou.view.seekbar.SignSeekBar;
 
@@ -153,6 +154,8 @@ public class SendMoney extends BottomSheetDialogFragment {
                 model.isGroup = chatModel.isGroup;
                 model.isMoneyShared = true;
                 model.isImageShared = false;
+                model.receiverID = selectedPerson.id;
+                model.receiverName = selectedPerson.name;
                 model.isPoll = false;
                 model.money = binding.seekBar.getProgressFloat() + " USD";
                 model.timestamp = new Date().getTime();
@@ -192,33 +195,18 @@ public class SendMoney extends BottomSheetDialogFragment {
                             map.put("lastMessage", "Contributed");
                             map.put("isMoneyShared", true);
                             map.put("whoShared", "You shared - " + model.money);
-                            Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
-                                    .addOnSuccessListener(unused1 -> {
-                                        Constants.dismissDialog();
-                                        if (chatModel.isGroup) {
-                                            int i = 0;
-                                            for (UserModel userModel : chatModel.groupMembers) {
-                                                i++;
-                                                int finalI = i;
-                                                map.put("whoShared", this.userModel.name + " shared - " + model.money);
-                                                Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
-                                                        .addOnSuccessListener(unused2 -> {
-                                                            if (finalI == chatModel.groupMembers.size() - 1) {
-                                                                dismiss();
-                                                            }
-                                                        });
-                                            }
-                                        } else {
-                                            map.put("whoShared", "You got - " + model.money);
-                                            Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
-                                                    .addOnSuccessListener(unused2 -> {
-                                                        dismiss();
-                                                    });
-                                        }
-                                    }).addOnFailureListener(e -> {
-                                        Constants.dismissDialog();
-                                        Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                    });;
+                            if (chatModel.isSocoGroup) {
+                                map.put("whoShared", this.userModel.name + " shared - " + model.money);
+                                Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).updateChildren(map).addOnSuccessListener(unused1 -> {
+                                    dismiss();
+                                    Constants.dismissDialog();
+                                }).addOnFailureListener(e -> {
+                                    Constants.dismissDialog();
+                                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                            } else {
+                                updateOther(map, model);
+                            }
                         }).addOnFailureListener(e -> {
                             Constants.dismissDialog();
                             Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
@@ -227,6 +215,44 @@ public class SendMoney extends BottomSheetDialogFragment {
         });
 
         return binding.getRoot();
+    }
+
+    private void updateOther(Map<String, Object> map, MessageModel model) {
+        Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
+                .addOnSuccessListener(unused1 -> {
+                    Constants.dismissDialog();
+                    if (chatModel.isGroup) {
+                        map.put("whoShared", this.userModel.name + " shared - " + model.money);
+                        int i = 0;
+                        for (UserModel userModel : chatModel.groupMembers) {
+                            i++;
+                            int finalI = i;
+                            Constants.databaseReference().child(Constants.CHATS).child(userModel.id).child(chatModel.id).updateChildren(map)
+                                    .addOnSuccessListener(unused2 -> {
+                                        if (finalI == chatModel.groupMembers.size() - 1) {
+                                            dismiss();
+                                        }
+                                    });
+                        }
+                        ArrayList<String> ids = new ArrayList<>();
+                        for (UserModel users : chatModel.groupMembers) {
+                            if (!users.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(users.id);
+                        }
+                        String[] id = ids.toArray(new String[0]);
+                        new FcmNotificationsSender(id, chatModel.name, map.get("whoShared").toString(), requireContext(), chatModel.id, false).SendNotifications();
+                    } else {
+                        map.put("whoShared", "You got - " + model.money);
+                        Constants.databaseReference().child(Constants.CHATS).child(chatModel.userID).child(chatModel.id).updateChildren(map)
+                                .addOnSuccessListener(unused2 -> {
+                                    dismiss();
+                                    String[] id = new String[]{chatModel.userID};
+                                    new FcmNotificationsSender(id, chatModel.name, map.get("whoShared").toString(), requireContext(), chatModel.id, false).SendNotifications();
+                                });
+                    }
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void addTransactionHistory(float amount) {

@@ -176,53 +176,85 @@ public class GroupSelectionActivity extends AppCompatActivity {
         @Override
         public void createChat(UserModel userModel) {
             Constants.showDialog();
-            ChatModel senderModel = new ChatModel();
-            ChatModel receiverModel = new ChatModel();
-            UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-
-            String ID = UUID.randomUUID().toString();
-
-            senderModel.id = ID;
-            receiverModel.id = ID;
-            senderModel.userID = userModel.id;
-            receiverModel.userID = Constants.auth().getCurrentUser().getUid();
-
-            senderModel.money = "";
-            receiverModel.money = "";
-
-            senderModel.timestamp = new Date().getTime();
-            receiverModel.timestamp = new Date().getTime();
-
-            senderModel.name = userModel.name;
-            receiverModel.name = stashUser.name;
-            senderModel.image = userModel.image;
-            receiverModel.image = stashUser.image;
-
-            senderModel.isGroup = false;
-            receiverModel.isGroup = false;
-            senderModel.isMoneyShared = false;
-            receiverModel.isMoneyShared = false;
-
-            senderModel.lastMessage = "Start Messaging";
-            receiverModel.lastMessage = "Start Messaging";
-
-            Constants.databaseReference().child(Constants.CHATS).child(Constants.auth().getCurrentUser().getUid())
-                    .child(ID).setValue(senderModel).addOnSuccessListener(unused -> {
-                        Constants.databaseReference().child(Constants.CHATS).child(userModel.id)
-                                .child(ID).setValue(receiverModel).addOnSuccessListener(unused1 -> {
-                                    Stash.put(Constants.CHATS, senderModel);
-                                    startActivity(new Intent(GroupSelectionActivity.this, ChatActivity.class));
-                                    finish();
-                                }).addOnFailureListener(e -> {
-                                    Constants.dismissDialog();
-                                    Toast.makeText(GroupSelectionActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                });
+            Constants.databaseReference().child(Constants.CHATS)
+                    .child(Constants.auth().getCurrentUser().getUid())
+                    .get().addOnSuccessListener(dataSnapshot -> {
+                        Constants.dismissDialog();
+                        if (dataSnapshot.exists()) {
+                            ChatModel finalModel = null;
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                ChatModel model = snapshot.getValue(ChatModel.class);
+                                if (!model.isGroup) {
+                                    if (model.userID.equals(userModel.id)) {
+                                        finalModel = model;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (finalModel != null) {
+                                Stash.put(Constants.CHATS, finalModel);
+                                startActivity(new Intent(GroupSelectionActivity.this, ChatActivity.class));
+                                finish();
+                            } else {
+                                makeNew(userModel);
+                            }
+                        } else {
+                            makeNew(userModel);
+                        }
                     }).addOnFailureListener(e -> {
                         Constants.dismissDialog();
                         Toast.makeText(GroupSelectionActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
     };
+
+    private void makeNew(UserModel userModel) {
+        ChatModel senderModel = new ChatModel();
+        ChatModel receiverModel = new ChatModel();
+        UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+
+        String ID = UUID.randomUUID().toString();
+
+        senderModel.id = ID;
+        receiverModel.id = ID;
+        senderModel.userID = userModel.id;
+        receiverModel.userID = Constants.auth().getCurrentUser().getUid();
+
+        senderModel.money = "";
+        receiverModel.money = "";
+
+        senderModel.timestamp = new Date().getTime();
+        receiverModel.timestamp = new Date().getTime();
+
+        senderModel.name = userModel.name;
+        receiverModel.name = stashUser.name;
+        senderModel.image = userModel.image;
+        receiverModel.image = stashUser.image;
+
+        senderModel.isGroup = false;
+        receiverModel.isGroup = false;
+        senderModel.isMoneyShared = false;
+        receiverModel.isMoneyShared = false;
+
+        senderModel.lastMessage = "Start Messaging";
+        receiverModel.lastMessage = "Start Messaging";
+
+        Constants.databaseReference().child(Constants.CHATS).child(Constants.auth().getCurrentUser().getUid())
+                .child(ID).setValue(senderModel).addOnSuccessListener(unused -> {
+                    Constants.databaseReference().child(Constants.CHATS).child(userModel.id)
+                            .child(ID).setValue(receiverModel).addOnSuccessListener(unused1 -> {
+                                Stash.put(Constants.CHATS, senderModel);
+                                startActivity(new Intent(GroupSelectionActivity.this, ChatActivity.class));
+                                finish();
+                            }).addOnFailureListener(e -> {
+                                Constants.dismissDialog();
+                                Toast.makeText(GroupSelectionActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(GroupSelectionActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
 
     @Override
     protected void onResume() {

@@ -3,4 +3,5 @@
     <item android:id="@+id/setting" android:title="Setting" />
     <item android:id="@+id/reminder" android:title="Meeting Reminder" />
     <item android:id="@+id/run" android:title="Running Topic" />
+    <item android:id="@+id/contribution" android:title="Contributions" />
 </menu>
