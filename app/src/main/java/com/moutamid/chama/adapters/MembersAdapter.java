@@ -61,7 +61,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!model.id.equals(adminID)) {
+                if (model.id.equals(adminID) && model.role.equals("OWNER")) {
                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View customView = inflater.inflate(R.layout.detail_menu, null);
                     PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);

@@ -47,6 +47,8 @@ public class GroupSettingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 1001;
     Uri imageUri;
 
+    boolean canEdit = false;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -62,8 +64,46 @@ public class GroupSettingActivity extends AppCompatActivity {
         binding.usersRC.setAdapter(adapter);
 
         if (chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
+            canEdit = true;
             binding.addMore.setVisibility(View.VISIBLE);
         } else binding.addMore.setVisibility(View.GONE);
+
+        for (UserModel users : chatModel.groupMembers) {
+            if (users.id.equals(Constants.auth().getCurrentUser().getUid())) {
+                if (users.role.equals("Edit Group")) {
+                    canEdit = true;
+                    break;
+                }
+            }
+        }
+
+        if (canEdit) {
+            binding.save.setVisibility(View.VISIBLE);
+            binding.name.setOnClickListener(v -> {
+                binding.name.setVisibility(View.GONE);
+                binding.nameEdit.setVisibility(View.VISIBLE);
+                binding.nameEdit.requestFocus();
+            });
+            binding.save.setOnClickListener(v -> {
+                Constants.showDialog();
+                if (imageUri == null) {
+                    uploadData(chatModel.image);
+                } else {
+                    uploadImage();
+                }
+            });
+            binding.profileIcon.setOnClickListener(v -> {
+                ImagePicker.with(this)
+                        .cropSquare()
+                        .galleryOnly()
+                        .compress(1024)
+                        .maxResultSize(1080, 1080)
+                        .start(PICK_FROM_GALLERY);
+            });
+        } else {
+            binding.save.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
@@ -71,30 +111,6 @@ public class GroupSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityGroupSettingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        binding.name.setOnClickListener(v -> {
-            binding.name.setVisibility(View.GONE);
-            binding.nameEdit.setVisibility(View.VISIBLE);
-            binding.nameEdit.requestFocus();
-        });
-
-        binding.save.setOnClickListener(v -> {
-            Constants.showDialog();
-            if (imageUri == null) {
-                uploadData(chatModel.image);
-            } else {
-                uploadImage();
-            }
-        });
-
-        binding.profileIcon.setOnClickListener(v -> {
-            ImagePicker.with(this)
-                    .cropSquare()
-                    .galleryOnly()
-                    .compress(1024)
-                    .maxResultSize(1080, 1080)
-                    .start(PICK_FROM_GALLERY);
-        });
 
         binding.back.setOnClickListener(v -> onBackPressed());
 

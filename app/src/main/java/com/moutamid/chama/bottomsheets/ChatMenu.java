@@ -16,6 +16,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.databinding.ChatMenuBinding;
 import com.moutamid.chama.listener.ImageSelectionListener;
 import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.models.UserModel;
+import com.moutamid.chama.utilis.Constants;
 
 public class ChatMenu extends BottomSheetDialogFragment {
     ChatMenuBinding binding;
@@ -31,8 +33,27 @@ public class ChatMenu extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = ChatMenuBinding.inflate(getLayoutInflater(), container, false);
+        boolean canEdit = false;
+        if (chatModel.isGroup) {
+            for (UserModel users : chatModel.groupMembers) {
+                if (users.id.equals(Constants.auth().getCurrentUser().getUid())) {
+                    if (users.role.equals("Handle Money")) {
+                        canEdit = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-        if (!chatModel.isGroup){
+        if (canEdit) {
+            binding.sendMoney.setVisibility(View.VISIBLE);
+            binding.withdrawFund.setVisibility(View.VISIBLE);
+        } else {
+            binding.sendMoney.setVisibility(View.GONE);
+            binding.withdrawFund.setVisibility(View.GONE);
+        }
+
+        if (!chatModel.isGroup) {
             binding.createPol.setVisibility(View.GONE);
         }
 

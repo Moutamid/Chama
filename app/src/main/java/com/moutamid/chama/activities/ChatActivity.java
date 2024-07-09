@@ -60,6 +60,7 @@ import com.moutamid.chama.utilis.Constants;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -182,6 +183,10 @@ public class ChatActivity extends AppCompatActivity {
         binding.name.setText(chatModel.name);
         Glide.with(this).load(chatModel.image).placeholder(R.drawable.profile_icon).into(binding.image);
         list.clear();
+
+        adapter = new ChatAdapter(this, list, fundTransfer);
+        binding.chat.setAdapter(adapter);
+
         fetchMessages();
     }
 
@@ -302,10 +307,6 @@ public class ChatActivity extends AppCompatActivity {
         binding.chat.setLayoutManager(new LinearLayoutManager(this));
         binding.chat.setHasFixedSize(false);
 
-        adapter = new ChatAdapter(this, list, fundTransfer);
-        binding.chat.setAdapter(adapter);
-
-
         binding.clip.setOnClickListener(v -> {
             ChatMenu chatMenu = new ChatMenu(chatModel, imageSelectionListener);
             chatMenu.show(getSupportFragmentManager(), chatMenu.getTag());
@@ -380,6 +381,8 @@ public class ChatActivity extends AppCompatActivity {
             noItem.setVisibility(View.VISIBLE);
             contributionsRC.setVisibility(View.GONE);
         } else {
+            contributions.sort(Comparator.comparing(messageModel -> messageModel.timestamp));
+            Collections.reverse(contributions);
             noItem.setVisibility(View.GONE);
             contributionsRC.setVisibility(View.VISIBLE);
         }
