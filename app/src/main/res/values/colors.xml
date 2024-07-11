@@ -10,8 +10,10 @@
     <color name="text">#D1D3D4</color>
     <color name="grey">#EBEBEB</color>
     <color name="grey2">#F5F5F5</color>
+    <color name="chip">#e4e4e4</color>
     <color name="text2">#9A9FA5</color>
     <color name="text3">#707070</color>
+    <color name="text_chip">#666666</color>
     <color name="bar_normal">#1C6455</color>
     <color name="bar_locked">#8FA2C6</color>
     <color name="bar_locked_trans">#668FA2C6</color>

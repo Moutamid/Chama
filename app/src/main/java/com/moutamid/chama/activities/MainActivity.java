@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -18,21 +17,22 @@ import androidx.core.view.GravityCompat;
 import com.fxn.stash.Stash;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivityMainBinding;
 import com.moutamid.chama.fragments.HomeFragment;
-import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.models.Admins;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     ActivityMainBinding binding;
+    ArrayList<Admins> admins = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,47 +78,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
     }
 
-/*    private void createGroup() {
-        ChatModel senderModel = new ChatModel();
+    /*    private void createGroup() {
+            ChatModel senderModel = new ChatModel();
 
-        ArrayList<UserModel> currentItems = new ArrayList<>();
-        UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-        currentItems.add(stashUser);
+            ArrayList<UserModel> currentItems = new ArrayList<>();
+            UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+            currentItems.add(stashUser);
 
-        String ID = UUID.randomUUID().toString();
+            String ID = UUID.randomUUID().toString();
 
-        senderModel.id = ID;
-        senderModel.userID = "";
-        senderModel.money = "";
+            senderModel.id = ID;
+            senderModel.userID = "";
+            senderModel.money = "";
 
-        senderModel.timestamp = new Date().getTime();
+            senderModel.timestamp = new Date().getTime();
 
-        senderModel.name = "SOCO Group";
-        senderModel.image = "";
+            senderModel.name = "SOCO Group";
+            senderModel.image = "";
 
-        senderModel.isGroup = true;
-        senderModel.isSocoGroup = true;
-        senderModel.isMoneyShared = false;
+            senderModel.isGroup = true;
+            senderModel.isSocoGroup = true;
+            senderModel.isMoneyShared = false;
 
-        senderModel.adminID = Constants.auth().getCurrentUser().getUid();
+            senderModel.adminID = Constants.auth().getCurrentUser().getUid();
 
-        senderModel.lastMessage = "Start Messaging";
-        senderModel.groupMembers = new ArrayList<>(currentItems);
+            senderModel.lastMessage = "Start Messaging";
+            senderModel.groupMembers = new ArrayList<>(currentItems);
 
-        Constants.databaseReference().child(Constants.SOCO)
-                .child(ID).setValue(senderModel).addOnSuccessListener(unused -> {
+            Constants.databaseReference().child(Constants.SOCO)
+                    .child(ID).setValue(senderModel).addOnSuccessListener(unused -> {
 
-                }).addOnFailureListener(e -> {
-                    Constants.dismissDialog();
-                    Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }*/
+                    }).addOnFailureListener(e -> {
+                        Constants.dismissDialog();
+                        Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }*/
     private static final String TAG = "MainActivity";
 
     @Override
     protected void onResume() {
         super.onResume();
         Constants.initDialog(this);
+        Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
+            if (dataSnapshot.exists()) {
+                admins.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Admins admin = snapshot.getValue(Admins.class);
+                    admins.add(admin);
+                }
+                Constants.updateAdminsList(admins);
+            }
+        });
     }
 
     public void enableMessageLayout() {
@@ -147,7 +157,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, SavingActivity.class));
         }
         if (id == R.id.product) {
-            startActivity(new Intent(this, ProductsActivity.class));
+            boolean isAdmin = admins.stream().anyMatch(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid()));
+            if (isAdmin) {
+                startActivity(new Intent(this, ProductsActivity.class));
+            } else {
+                startActivity(new Intent(this, ProductListActivity.class));
+            }
         }
         if (id == R.id.services) {
             startActivity(new Intent(this, ServicesActivity.class));

@@ -12,11 +12,15 @@ import android.widget.TextView;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.fxn.stash.Stash;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.FragmentStockInBinding;
 import com.moutamid.chama.databinding.StockTableLayoutBinding;
+import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.models.StockModel;
+import com.moutamid.chama.utilis.Constants;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -35,11 +39,8 @@ public class StockInFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentStockInBinding.inflate(getLayoutInflater(), container, false);
 
-        ArrayList<StockModel> list = new ArrayList<>();
-        list.add(new StockModel("Salt", getRows()));
-        list.add(new StockModel("Sugar", getRows()));
-        list.add(new StockModel("Chicken", getRows()));
-        list.add(new StockModel("Milk", getRows()));
+        ArrayList<ProductModel> list = Stash.getArrayList(Constants.PRODUCTS, ProductModel.class);
+
         binding.main.removeAllViews();
         for (StockModel model : list) {
             stockTableLayoutBinding = StockTableLayoutBinding.inflate(getLayoutInflater());
@@ -86,19 +87,13 @@ public class StockInFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private ArrayList<String> getRows() {
-        ArrayList<String> rows = new ArrayList<>();
-        rows.add("Date,Kgs,Buying Price,Quantities");
-        String[] data = {
-                "2024-05-23,100.5,25.75,20",
-                "2024-05-20,50.0,30.00,10",
-                "2024-05-15,75.2,22.10,15",
-                "Sold,-,-,150",
-                "Total available,-,-,15",
-        };
-        rows.addAll(Arrays.asList(data));
-        return rows;
+    public static class Stock {
+        public String name;
+        public ArrayList<StockModel> list;
+        public Stock(String name, ArrayList<StockModel> list) {
+            this.name = name;
+            this.list = list;
+        }
     }
-
 
 }

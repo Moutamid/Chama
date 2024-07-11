@@ -12,4 +12,22 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar_activity" />
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:background="@drawable/background"
+        app:tabIndicatorAnimationMode="elastic"
+        app:tabIndicatorColor="@color/red"
+        android:layout_margin="12dp"
+        app:tabSelectedTextColor="@color/black"
+        app:tabTextColor="@color/text" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabLayout" />
+
 </RelativeLayout>

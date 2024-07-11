@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/stock" android:title="Stock" android:icon="@drawable/cubes_solid" />
-    <item android:id="@+id/sales" android:title="Sales" android:icon="@drawable/arrow_trend_up_solid" />
+    <item android:id="@+id/stock" android:title="Stock" android:icon="@drawable/arrow_trend_up_solid" />
+    <item android:id="@+id/products" android:title="Products" android:icon="@drawable/cubes_solid" />
 </menu>

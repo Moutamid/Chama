@@ -42,13 +42,15 @@ dependencies {
     implementation(libs.circle.imageview)
     implementation(libs.hbb20.ccp)
 
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-messaging")
+
+    implementation(libs.floatingactionbutton)
 
     implementation(libs.volley)
 

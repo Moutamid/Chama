@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.moutamid.chama.R;
+import com.moutamid.chama.models.Admins;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -32,8 +34,12 @@ import java.util.Locale;
 public class Constants {
     public static Dialog dialog;
     public static final String STASH_USER = "STASH_USER";
-    public static final String MAIN_ADMIN = "1TBhJA8LGCf4CG60I3lX2Am0Qwo1";
+    public static ArrayList<Admins> admins;
+    public static final String STOCK = "STOCK";
+    public static final String ADMINS = "ADMINS";
+    public static final String PRODUCTS = "PRODUCTS";
     public static final String RUNNING_TOPICS = "RUNNING_TOPICS";
+    public static final String OWNER = "OWNER";
     public static final String USER = "USER";
     public static final String STATUS = "STATUS";
     public static final String SOCO = "SOCO";
@@ -57,6 +63,10 @@ public class Constants {
 
     public static String getCurrentMonth() {
         return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());
+    }
+
+    public static void updateAdminsList(ArrayList<Admins> admin) {
+        admins = new ArrayList<>(admin);
     }
 
     public static void initDialog(Context context) {

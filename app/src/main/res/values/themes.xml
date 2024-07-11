@@ -38,4 +38,16 @@
         <item name="android:windowExitAnimation">@animator/slide_out_bottom</item>
     </style>
 
+    <style name="menu_labels_style">
+        <item name="android:background">@drawable/fab_label_background</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="ChipsColor" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_color</item>
+        <item name="android:textColor">@color/text_color</item>
+        <item name="checkedIconTint">@color/grey</item>
+    </style>
+
 </resources>
