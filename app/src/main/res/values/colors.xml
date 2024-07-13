@@ -22,4 +22,5 @@
     <color name="yellow">#FFA900</color>
     <color name="purple">#AD7EEA</color>
     <color name="red">#EA6A60</color>
+    <color name="red_light">#66EA6A60</color>
 </resources>

@@ -36,8 +36,10 @@ public class Constants {
     public static final String STASH_USER = "STASH_USER";
     public static ArrayList<Admins> admins;
     public static final String STOCK = "STOCK";
+    public static final String STOCK_OUT = "STOCK_OUT";
     public static final String ADMINS = "ADMINS";
     public static final String PRODUCTS = "PRODUCTS";
+    public static final String EDIT_PRODUCT = "EDIT_PRODUCT";
     public static final String RUNNING_TOPICS = "RUNNING_TOPICS";
     public static final String OWNER = "OWNER";
     public static final String USER = "USER";

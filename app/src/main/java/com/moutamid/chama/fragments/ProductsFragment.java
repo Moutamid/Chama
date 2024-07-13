@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +31,7 @@ public class ProductsFragment extends Fragment {
     public ProductsFragment() {
         // Required empty public constructor
     }
-
+    ProductsAdapter adapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -48,12 +50,39 @@ public class ProductsFragment extends Fragment {
             startActivity(new Intent(requireContext(), AddStockActivity.class));
         });
 
+        binding.search.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         return binding.getRoot();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        refreshList();
+    }
+
+    public interface Refresh {
+        void refresh();
+    }
+
+    Refresh refresh = this::refreshList;
+
+    private void refreshList() {
         list = new ArrayList<>();
         Constants.databaseReference().child(Constants.PRODUCTS).get()
                 .addOnSuccessListener(dataSnapshot -> {
@@ -73,11 +102,12 @@ public class ProductsFragment extends Fragment {
                         binding.products.setVisibility(View.VISIBLE);
                     }
                     Stash.put(Constants.PRODUCTS, list);
-                    ProductsAdapter adapter = new ProductsAdapter(requireContext(), list);
+                    adapter = new ProductsAdapter(requireContext(), list, refresh);
                     binding.products.setAdapter(adapter);
                 }).addOnFailureListener(e -> {
                     Constants.dismissDialog();
                     Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                });;
+                });
     }
+
 }
