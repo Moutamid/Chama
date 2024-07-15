@@ -2,9 +2,11 @@ package com.moutamid.chama.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,11 +42,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
+import com.moutamid.chama.activities.ProductListActivity;
+import com.moutamid.chama.adapters.ProductBuyAdapter;
+import com.moutamid.chama.adapters.ProductHomeAdapter;
 import com.moutamid.chama.adapters.TimelineAdapter;
+import com.moutamid.chama.bottomsheets.BuyProduct;
 import com.moutamid.chama.bottomsheets.DateFilter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
+import com.moutamid.chama.models.Admins;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
+import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.TransactionModel;
 import com.moutamid.chama.models.UserModel;
@@ -59,6 +67,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -93,7 +102,27 @@ public class DashboardFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(getLayoutInflater(), container, false);
 
-        setupLineChart();
+        ArrayList<Admins> admins = new ArrayList<>();
+        Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
+            if (dataSnapshot.exists()) {
+                admins.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Admins admin = snapshot.getValue(Admins.class);
+                    admins.add(admin);
+                }
+                boolean isAdmin = admins.stream().anyMatch(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid()));
+                if (isAdmin) {
+                    binding.businessLayout.setVisibility(View.VISIBLE);
+                    binding.productsLayout.setVisibility(View.GONE);
+                    setupLineChart();
+                } else {
+                    binding.businessLayout.setVisibility(View.GONE);
+                    binding.productsLayout.setVisibility(View.VISIBLE);
+                    setUpProducts();
+                }
+            }
+        });
+
         setupTimeline();
 
         binding.dateFilterReports.setOnClickListener(v -> {
@@ -118,6 +147,35 @@ public class DashboardFragment extends Fragment {
         getTransactions();
 
         return binding.getRoot();
+    }
+
+    private void setUpProducts() {
+        binding.products.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.products.setHasFixedSize(false);
+
+        ArrayList<ProductModel> list = new ArrayList<>();
+        Constants.databaseReference().child(Constants.PRODUCTS).get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        list.clear();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            ProductModel productModel = snapshot.getValue(ProductModel.class);
+                            list.add(productModel);
+                        }
+                    }
+                    ProductHomeAdapter adapter = new ProductHomeAdapter(requireContext(), list, model -> {
+                        BuyProduct fragment = new BuyProduct(model);
+                        fragment.show(getChildFragmentManager(), fragment.getTag());
+                    });
+                    binding.products.setAdapter(adapter);
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        binding.viewAll.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), ProductListActivity.class));
+        });
+
     }
 
     private void getTransactions() {

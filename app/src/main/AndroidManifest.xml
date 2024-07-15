@@ -29,6 +29,12 @@
         android:theme="@style/Theme.Chama"
         tools:targetApi="31">
         <activity
+            android:name=".activities.OrderCompleteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.CheckOutActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ProductEditActivity"
             android:exported="false" />
         <activity

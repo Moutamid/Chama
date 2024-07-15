@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
@@ -29,12 +30,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 public class StockInFragment extends Fragment {
     FragmentStockInBinding binding;
     StockTableLayoutBinding stockTableLayoutBinding;
     private static final String TAG = "StockInFragment";
-
+    ArrayList<Stock> stock_out = new ArrayList<>();
+    ArrayList<ProductModel> list = new ArrayList<>();
     public StockInFragment() {
         // Required empty public constructor
     }
@@ -43,12 +46,53 @@ public class StockInFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentStockInBinding.inflate(getLayoutInflater(), container, false);
+        Constants.showDialog();
 
-        binding.main.removeAllViews();
+        Constants.databaseReference().child(Constants.STOCK_OUT)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                ArrayList<StockModel> subList = new ArrayList<>();
+                                for (DataSnapshot dataSnapshot2 : dataSnapshot.getChildren()) {
+                                    StockModel model = dataSnapshot2.getValue(StockModel.class);
+                                    subList.add(model);
+                                }
+                                stock_out.add(new Stock(dataSnapshot.getKey(), subList));
+                            }
+                        }
+                        Constants.databaseReference().child(Constants.PRODUCTS).get()
+                                .addOnSuccessListener(dataSnapshot -> {
+                                    if (dataSnapshot.exists()) {
+                                        list.clear();
+                                        for (DataSnapshot snapshot2 : dataSnapshot.getChildren()) {
+                                            ProductModel productModel = snapshot2.getValue(ProductModel.class);
+                                            list.add(productModel);
+                                        }
+                                    }
+                                    getStockList();
+                                }).addOnFailureListener(e -> {
+                                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Constants.dismissDialog();
+                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        return binding.getRoot();
+    }
+
+    private void getStockList() {
         Constants.databaseReference().child(Constants.STOCK)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Constants.dismissDialog();
                         ArrayList<Stock> mainList = new ArrayList<>();
                         if (snapshot.exists()) {
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
@@ -65,14 +109,14 @@ public class StockInFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
+                        Constants.dismissDialog();
+                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        return binding.getRoot();
     }
 
     private void updateTable(ArrayList<Stock> mainList) {
+        binding.main.removeAllViews();
         for (Stock model : mainList) {
             stockTableLayoutBinding = StockTableLayoutBinding.inflate(getLayoutInflater());
             stockTableLayoutBinding.tableView.removeAllViews();
@@ -80,14 +124,14 @@ public class StockInFragment extends Fragment {
             TableLayout tableLayout = new TableLayout(requireContext());
             tableLayout.setLayoutParams(new TableLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
+                    ViewGroup.LayoutParams.MATCH_PARENT, 1));
             tableLayout.removeAllViews();
 
             TableRow header = new TableRow(requireContext());
             header.setLayoutParams(new TableRow.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-            String[] columns = new String[]{"Date", model.list.get(0).measuring_unit, "Buying Price", "Quantities"};
+                    ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            String[] columns = new String[]{"Date", "Unit", "Buying Price", "Quantities"};
             for (String col : columns) {
                 View view = getLayoutInflater().inflate(R.layout.table_text, null, false);
                 TextView textView = view.findViewById(R.id.text);
@@ -97,7 +141,6 @@ public class StockInFragment extends Fragment {
                 header.addView(view);
             }
             tableLayout.addView(header);
-            double total = 0;
             for (int i = 0; i < model.list.size(); i++) {
                 StockModel s = model.list.get(i);
                 TableRow tableRow = new TableRow(requireContext());
@@ -117,10 +160,8 @@ public class StockInFragment extends Fragment {
 
                 date.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(s.date));
                 price.setText("$" + String.format(Locale.getDefault(), "%,.2f", s.buying_price));
-                unit.setText(String.valueOf(s.unit));
+                unit.setText(s.unit +" "+ s.measuring_unit);
                 quantity.setText(String.valueOf(s.quantity));
-
-                total += s.quantity;
 
                 tableRow.addView(dateView);
                 tableRow.addView(unitView);
@@ -148,7 +189,15 @@ public class StockInFragment extends Fragment {
             dateS.setText("Sold");
             unitS.setText("-");
             priceS.setText("-");
-            quantityS.setText("N/A");
+            int sold = 0;
+            Stock stock = stock_out.stream().filter(stock1 -> Objects.equals(stock1.name, model.name)).findFirst().orElse(null);
+            if (stock != null) {
+             sold = (int) stock.list.stream()
+                        .mapToDouble(stockModel -> stockModel.quantity)
+                        .sum();
+            }
+            String s = sold == 0 ? "N/A" : String.valueOf(sold);
+            quantityS.setText(s);
 
             soldRow.addView(dateViewS);
             soldRow.addView(unitViewS);
@@ -176,7 +225,13 @@ public class StockInFragment extends Fragment {
             dateT.setText("Total Available");
             priceT.setText("-");
             unitT.setText("-");
-            quantityT.setText(String.format(Locale.getDefault(), "%,.2f", total));
+
+            double available = 0;
+            ProductModel productModel = list.stream().filter(product -> Objects.equals(product.name, model.name)).findFirst().orElse(null);
+            if (productModel != null) {
+                available = productModel.available_stock;
+            }
+            quantityT.setText(String.format(Locale.getDefault(), "%,.2f", available));
 
             totalRow.addView(dateViewT);
             totalRow.addView(unitViewT);

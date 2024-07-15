@@ -27,6 +27,7 @@
     <style name="ActionBarTitle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textSize">18sp</item>
     </style>
+
     <style name="ActionBarSubTitle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textSize">13sp</item>
     </style>

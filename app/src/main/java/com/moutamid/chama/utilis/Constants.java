@@ -34,8 +34,11 @@ import java.util.Locale;
 public class Constants {
     public static Dialog dialog;
     public static final String STASH_USER = "STASH_USER";
+    public static final String BUY_PRODUCT = "BUY_PRODUCT";
+    public static final String QUANTITY = "QUANTITY";
     public static ArrayList<Admins> admins;
     public static final String STOCK = "STOCK";
+    public static final String ORDERS = "ORDERS";
     public static final String STOCK_OUT = "STOCK_OUT";
     public static final String ADMINS = "ADMINS";
     public static final String PRODUCTS = "PRODUCTS";
