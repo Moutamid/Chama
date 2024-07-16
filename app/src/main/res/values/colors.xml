@@ -18,9 +18,11 @@
     <color name="bar_locked">#8FA2C6</color>
     <color name="bar_locked_trans">#668FA2C6</color>
     <color name="bar_withdrawal">#75C9A2</color>
+    <color name="green_trans">#4D75C9A2</color>
     <color name="yellow_light">#FFF7E0</color>
     <color name="yellow">#FFA900</color>
     <color name="purple">#AD7EEA</color>
     <color name="red">#EA6A60</color>
     <color name="red_light">#66EA6A60</color>
+
 </resources>

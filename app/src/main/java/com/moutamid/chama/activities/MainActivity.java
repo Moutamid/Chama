@@ -153,6 +153,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.home) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         }
+        if (id == R.id.expenses) {
+            startActivity(new Intent(this, ExpensesActivity.class));
+        }
         if (id == R.id.savings) {
             startActivity(new Intent(this, SavingActivity.class));
         }

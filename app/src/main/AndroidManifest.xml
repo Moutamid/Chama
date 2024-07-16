@@ -29,6 +29,15 @@
         android:theme="@style/Theme.Chama"
         tools:targetApi="31">
         <activity
+            android:name=".activities.SubActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AddActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ExpensesActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.OrderCompleteActivity"
             android:exported="false" />
         <activity
