@@ -24,10 +24,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.firebase.database.DataSnapshot;
 import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.MembersAdapter;
 import com.moutamid.chama.databinding.ActivityGroupSettingBinding;
 import com.moutamid.chama.listener.GroupMembers;
+import com.moutamid.chama.models.Admins;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.UserModel;
 import com.moutamid.chama.utilis.Constants;
@@ -38,7 +40,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 public class GroupSettingActivity extends AppCompatActivity {
     ActivityGroupSettingBinding binding;
@@ -60,6 +61,7 @@ public class GroupSettingActivity extends AppCompatActivity {
         binding.nameEdit.setText(chatModel.name);
 
         binding.size.setText(String.valueOf(chatModel.groupMembers.size()));
+
         adapter = new MembersAdapter(groupMembers, this, chatModel.groupMembers, chatModel.adminID);
         binding.usersRC.setAdapter(adapter);
 
@@ -226,14 +228,16 @@ public class GroupSettingActivity extends AppCompatActivity {
                 selected = "Edit Group";
             } else if (checkedId == R.id.owner) {
                 selected = "OWNER";
+            } else if (checkedId == R.id.manageProducts) {
+                selected = "Products Manager";
             } else selected = "UNKNOWN_ROLE";
-            Map<String, Object> map = new HashMap<>();
-            map.put("role", selected);
             Log.d(TAG, "showDialog: " + selected);
             ArrayList<UserModel> users = new ArrayList<>();
+            UserModel selectedUser = null;
             for (UserModel user : chatModel.groupMembers) {
                 if (user.id.equals(userModel.id)) {
                     user.role = selected;
+                    selectedUser = user;
                 }
                 users.add(user);
             }
@@ -242,7 +246,34 @@ public class GroupSettingActivity extends AppCompatActivity {
                 Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).setValue(chatModel);
             }
             adapter.notifyItemChanged(pos);
-            dialog.dismiss();
+
+            if (checkedId == R.id.manageProducts) {
+                if (selectedUser != null) {
+                    Admins admin = new Admins(selectedUser.id, "Products Manager");
+                    Constants.databaseReference().child(Constants.ADMINS).push().setValue(admin);
+                }
+                dialog.dismiss();
+            } else if (checkedId == R.id.no) {
+                UserModel finalSelectedUser = selectedUser;
+                Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        String key = null;
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Admins admin = snapshot.getValue(Admins.class);
+                            if (finalSelectedUser != null) {
+                                if (finalSelectedUser.id.equals(admin.id)) {
+                                    key = snapshot.getKey();
+                                    break;
+                                }
+                            }
+                        }
+                        if (key != null) {
+                            Constants.databaseReference().child(Constants.ADMINS).child(key).removeValue();
+                        }
+                    }
+                });
+                dialog.dismiss();
+            }
         });
         Log.d(TAG, "showDialog: ");
     }

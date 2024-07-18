@@ -50,6 +50,13 @@
                 android:text="Owner" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/manageProducts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:text="Manage Products" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/no"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

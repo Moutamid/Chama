@@ -33,6 +33,18 @@ public class ExpensesActivity extends AppCompatActivity {
         binding.toolbar.name.setText("Expense Manager");
         binding.toolbar.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
+        binding.addSpent.setOnClickListener(v -> {
+            startActivity(new Intent(this, SubActivity.class));
+        });
+        binding.addIncome.setOnClickListener(v -> {
+            startActivity(new Intent(this, AddActivity.class));
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         balance = Double.parseDouble(Stash.getString(Constants.TOTAL, "0"));
         income = Double.parseDouble(Stash.getString(Constants.INCOME, "0"));
         spent = Double.parseDouble(Stash.getString(Constants.SPENT, "0"));
@@ -49,13 +61,5 @@ public class ExpensesActivity extends AppCompatActivity {
         binding.balance.setText("$" + String.format("%,.2f", balance));
         binding.income.setText("$" + String.format("%,.2f", income));
         binding.spent.setText("$" + String.format("%,.2f", spent));
-
-        binding.addSpent.setOnClickListener(v -> {
-            startActivity(new Intent(this, SubActivity.class));
-        });
-        binding.addIncome.setOnClickListener(v -> {
-            startActivity(new Intent(this, AddActivity.class));
-        });
-
     }
 }

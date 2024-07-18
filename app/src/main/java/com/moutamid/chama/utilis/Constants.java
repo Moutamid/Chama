@@ -36,7 +36,6 @@ public class Constants {
     public static final String STASH_USER = "STASH_USER";
     public static final String BUY_PRODUCT = "BUY_PRODUCT";
     public static final String QUANTITY = "QUANTITY";
-    public static ArrayList<Admins> admins;
     public static final String STOCK = "STOCK";
     public static final String ORDERS = "ORDERS";
     public static final String STOCK_OUT = "STOCK_OUT";
@@ -72,10 +71,6 @@ public class Constants {
 
     public static String getCurrentMonth() {
         return new SimpleDateFormat("MMM", Locale.getDefault()).format(new Date());
-    }
-
-    public static void updateAdminsList(ArrayList<Admins> admin) {
-        admins = new ArrayList<>(admin);
     }
 
     public static void initDialog(Context context) {

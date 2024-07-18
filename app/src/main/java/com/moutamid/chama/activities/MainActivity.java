@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Admins admin = snapshot.getValue(Admins.class);
                     admins.add(admin);
                 }
-                Constants.updateAdminsList(admins);
             }
         });
     }

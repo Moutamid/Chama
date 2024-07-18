@@ -1,6 +1,7 @@
 package com.moutamid.chama.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +33,8 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     ArrayList<UserModel> list;
     ArrayList<UserModel> listAll;
     String adminID;
+    UserModel currentUser;
+    private static final String TAG = "MembersAdapter";
     public MembersAdapter(GroupMembers groupMembers, Context context, ArrayList<UserModel> list, String adminID) {
         this.groupMembers = groupMembers;
         this.context = context;
@@ -48,6 +52,9 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     @Override
     public void onBindViewHolder(@NonNull MembersVH holder, int position) {
         UserModel model = list.get(holder.getAbsoluteAdapterPosition());
+        if (Constants.auth().getCurrentUser().getUid().equals(model.id)) {
+            currentUser = model;
+        }
         holder.name.setText(model.name);
         String role;
         if (model.role != null) {
@@ -61,7 +68,10 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (model.id.equals(adminID) && model.role.equals("OWNER")) {
+                Log.d(TAG, "onLongClick: "+ currentUser.role);
+                Log.d(TAG, "onLongClick: " + adminID);
+                Log.d(TAG, "onLongClick: " + currentUser.id);
+                if (currentUser.id.equals(adminID) && currentUser.role.equals(Constants.OWNER)) {
                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View customView = inflater.inflate(R.layout.detail_menu, null);
                     PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);

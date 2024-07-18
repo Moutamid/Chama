@@ -110,11 +110,17 @@ public class DashboardFragment extends Fragment {
                     Admins admin = snapshot.getValue(Admins.class);
                     admins.add(admin);
                 }
-                boolean isAdmin = admins.stream().anyMatch(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid()));
-                if (isAdmin) {
-                    binding.businessLayout.setVisibility(View.VISIBLE);
-                    binding.productsLayout.setVisibility(View.GONE);
-                    setupLineChart();
+                Admins isAdmin = admins.stream().filter(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid())).findFirst().orElse(null);
+                if (isAdmin != null) {
+                    if (isAdmin.role.equals(Constants.OWNER)) {
+                        binding.businessLayout.setVisibility(View.VISIBLE);
+                        binding.productsLayout.setVisibility(View.GONE);
+                        setupLineChart();
+                    } else {
+                        binding.businessLayout.setVisibility(View.GONE);
+                        binding.productsLayout.setVisibility(View.VISIBLE);
+                        setUpProducts();
+                    }
                 } else {
                     binding.businessLayout.setVisibility(View.GONE);
                     binding.productsLayout.setVisibility(View.VISIBLE);
