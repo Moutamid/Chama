@@ -11,22 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.button.MaterialButton;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.ProductListActivity;
-import com.moutamid.chama.bottomsheets.BuyProduct;
-import com.moutamid.chama.bottomsheets.CreatePoll;
 import com.moutamid.chama.listener.Buy;
 import com.moutamid.chama.models.ProductModel;
 
 import java.util.ArrayList;
 
-public class ProductBuyAdapter extends RecyclerView.Adapter<ProductBuyAdapter.ProductVH> {
+public class ProductChatAdapter extends RecyclerView.Adapter<ProductChatAdapter.ProductVH> {
     Context context;
     ArrayList<ProductModel> list;
     Buy buy;
 
-    public ProductBuyAdapter(Context context, ArrayList<ProductModel> list, Buy buy) {
+    public ProductChatAdapter(Context context, ArrayList<ProductModel> list, Buy buy) {
         this.context = context;
         this.list = list;
         this.buy = buy;
@@ -35,7 +32,7 @@ public class ProductBuyAdapter extends RecyclerView.Adapter<ProductBuyAdapter.Pr
     @NonNull
     @Override
     public ProductVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ProductVH(LayoutInflater.from(context).inflate(R.layout.products_buy, parent, false));
+        return new ProductVH(LayoutInflater.from(context).inflate(R.layout.product_home, parent, false));
     }
 
     @Override
@@ -43,14 +40,11 @@ public class ProductBuyAdapter extends RecyclerView.Adapter<ProductBuyAdapter.Pr
         ProductModel model = list.get(holder.getAbsoluteAdapterPosition());
         Glide.with(context).load(model.image).into(holder.productImage);
         holder.price.setText(String.format("$%s", model.unit_price));
-        holder.stock.setText(String.valueOf( model.available_stock));
         holder.productName.setText(model.name);
-        holder.productDescription.setText(model.desc);
 
-        holder.buy.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             buy.onBuy(model);
         });
-
     }
 
     @Override
@@ -61,18 +55,12 @@ public class ProductBuyAdapter extends RecyclerView.Adapter<ProductBuyAdapter.Pr
     public static class ProductVH extends RecyclerView.ViewHolder {
         ImageView productImage;
         TextView productName;
-        TextView productDescription;
-        TextView stock;
         TextView price;
-        MaterialButton buy;
         public ProductVH(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.productImage);
-            productDescription = itemView.findViewById(R.id.productDescription);
             productName = itemView.findViewById(R.id.productName);
-            stock = itemView.findViewById(R.id.stock);
             price = itemView.findViewById(R.id.price);
-            buy = itemView.findViewById(R.id.buy);
         }
     }
 

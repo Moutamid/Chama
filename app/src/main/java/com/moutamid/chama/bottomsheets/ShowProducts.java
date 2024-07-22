@@ -1,44 +1,42 @@
-package com.moutamid.chama.activities;
+package com.moutamid.chama.bottomsheets;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.fxn.stash.Stash;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.database.DataSnapshot;
-import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.ProductBuyAdapter;
-import com.moutamid.chama.adapters.ProductsAdapter;
-import com.moutamid.chama.bottomsheets.BuyProduct;
-import com.moutamid.chama.databinding.ActivityProductListBinding;
+import com.moutamid.chama.adapters.ProductChatAdapter;
+import com.moutamid.chama.databinding.ShowProductsBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
 
-public class ProductListActivity extends AppCompatActivity {
-    ActivityProductListBinding binding;
+public class ShowProducts extends BottomSheetDialogFragment {
+    ShowProductsBinding binding;
     ArrayList<ProductModel> list;
+    ChatModel chatModel;
+    public ShowProducts(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityProductListBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = ShowProductsBinding.inflate(getLayoutInflater(), container, false);
 
-        binding.toolbar.name.setText("Products");
-        binding.toolbar.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-
-        binding.products.setLayoutManager(new LinearLayoutManager(this));
+        binding.products.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.products.setHasFixedSize(false);
-        Constants.initDialog(this);
+
         Constants.showDialog();
         list = new ArrayList<>();
         Constants.databaseReference().child(Constants.PRODUCTS).get()
@@ -57,17 +55,16 @@ public class ProductListActivity extends AppCompatActivity {
                         binding.notLayout.setVisibility(View.GONE);
                         binding.products.setVisibility(View.VISIBLE);
                     }
-//                    Stash.put(Constants.PRODUCTS, list);
-                    ProductBuyAdapter adapter = new ProductBuyAdapter(this, list, model -> {
-                        BuyProduct fragment = new BuyProduct(model);
-                        fragment.show(getSupportFragmentManager(), fragment.getTag());
+                    ProductChatAdapter adapter = new ProductChatAdapter(requireContext(), list, model -> {
+                        Sell sell = new Sell();
+                        sell.show(getChildFragmentManager(), sell.getTag());
                     });
                     binding.products.setAdapter(adapter);
                 }).addOnFailureListener(e -> {
                     Constants.dismissDialog();
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
+        return binding.getRoot();
     }
-
 }

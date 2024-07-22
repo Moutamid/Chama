@@ -58,8 +58,13 @@
             android:id="@+id/groupLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/groupName"
@@ -67,9 +72,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:padding="12dp"
                 android:hint="Group Name"
-                android:textColor="@color/text2"
+                android:padding="12dp"
+                android:textColorHint="@color/text2"
+                android:textColor="@color/black"
                 android:textStyle="italic" />
 
             <TextView
@@ -83,6 +89,60 @@
 
         </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:text="Group Type : "
+                    android:textColor="@color/text2" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/groupType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/business"
+                        style="@style/ChipsColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:checked="true"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="Business"
+                        android:textSize="16sp"
+                        app:chipCornerRadius="4dp"
+                        app:textEndPadding="13dp"
+                        app:textStartPadding="13dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/sacco"
+                        style="@style/ChipsColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="Sacco"
+                        android:textSize="16sp"
+                        app:chipCornerRadius="4dp"
+                        app:textEndPadding="13dp"
+                        app:textStartPadding="13dp" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
     <View
@@ -106,8 +166,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:visibility="gone"
         android:layout_margin="15dp"
-        android:text="Create Group" />
+        android:text="Create Group"
+        android:visibility="gone" />
 
 </RelativeLayout>

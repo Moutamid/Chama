@@ -195,7 +195,7 @@ public class SendMoney extends BottomSheetDialogFragment {
                             map.put("lastMessage", "Contributed");
                             map.put("isMoneyShared", true);
                             map.put("whoShared", "You shared - " + model.money);
-                            if (chatModel.isSocoGroup) {
+                            if (chatModel.isSoccoGroup) {
                                 map.put("whoShared", this.userModel.name + " shared - " + model.money);
                                 Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).updateChildren(map).addOnSuccessListener(unused1 -> {
                                     dismiss();

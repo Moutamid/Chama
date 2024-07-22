@@ -1,7 +1,6 @@
 package com.moutamid.chama.activities;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Toast;
@@ -96,7 +95,7 @@ public class AddMembersActivity extends AppCompatActivity {
         Constants.showDialog();
         chatModel.groupMembers.addAll(currentItems);
         ArrayList<UserModel> groupMembers = chatModel.groupMembers;
-        if (chatModel.isSocoGroup) {
+        if (chatModel.isSoccoGroup) {
             Constants.databaseReference().child(Constants.SOCO)
                     .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers)
                     .addOnSuccessListener(unused -> {

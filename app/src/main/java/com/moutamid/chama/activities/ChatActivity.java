@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +46,11 @@ import com.moutamid.chama.R;
 import com.moutamid.chama.adapters.ChatAdapter;
 import com.moutamid.chama.adapters.ContributionAdapter;
 import com.moutamid.chama.bottomsheets.ChatMenu;
+import com.moutamid.chama.bottomsheets.ShowProducts;
 import com.moutamid.chama.bottomsheets.WithdrawFunds;
 import com.moutamid.chama.databinding.ActivityChatBinding;
+import com.moutamid.chama.listener.ChatMenuListener;
 import com.moutamid.chama.listener.FundTransfer;
-import com.moutamid.chama.listener.ImageSelectionListener;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.TimelineModel;
@@ -88,38 +90,6 @@ public class ChatActivity extends AppCompatActivity {
         Constants.initDialog(this);
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
-        if (chatModel.isGroup && chatModel.isSocoGroup) {
-            binding.joinGroup.setVisibility(View.VISIBLE);
-
-            if (!chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())){
-                binding.more.setVisibility(View.GONE);
-            }
-
-            for (UserModel users : chatModel.groupMembers) {
-                if (users.id.equals(Constants.auth().getCurrentUser().getUid())) {
-                    binding.joinGroup.setVisibility(View.GONE);
-                    break;
-                }
-            }
-        } else {
-            binding.joinGroup.setVisibility(View.GONE);
-        }
-
-        binding.join.setOnClickListener(v -> {
-            UserModel stashUser = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-            ArrayList<UserModel> users = new ArrayList<>(chatModel.groupMembers);
-            stashUser.role = "UNKNOWN_ROLE";
-            users.add(stashUser);
-            chatModel.groupMembers = new ArrayList<>(users);
-            Log.d(TAG, "onResume: " + users.size());
-            Constants.databaseReference().child(Constants.SOCO)
-                    .child(chatModel.id).setValue(chatModel).addOnSuccessListener(unused -> {
-                        Log.d(TAG, "onResume: JOINED");
-                        binding.joinGroup.setVisibility(View.GONE);
-                    }).addOnFailureListener(e -> {
-                        Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        });
 
         if (!chatModel.isGroup) {
             getUserStatus();
@@ -158,26 +128,26 @@ public class ChatActivity extends AppCompatActivity {
                 });
 
         Constants.databaseReference().child(Constants.RUNNING_TOPICS).child(chatModel.id)
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()){
-                                    String topic = snapshot.getValue(String.class);
-                                    if (topic.isEmpty()){
-                                        binding.running.setVisibility(View.GONE);
-                                        binding.topic.setText(topic);
-                                    } else {
-                                        binding.running.setVisibility(View.VISIBLE);
-                                        binding.topic.setText(topic);
-                                    }
-                                }
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String topic = snapshot.getValue(String.class);
+                            if (topic.isEmpty()) {
+                                binding.running.setVisibility(View.GONE);
+                                binding.topic.setText(topic);
+                            } else {
+                                binding.running.setVisibility(View.VISIBLE);
+                                binding.topic.setText(topic);
                             }
+                        }
+                    }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-                            }
-                        });
+                    }
+                });
 
 
         binding.name.setText(chatModel.name);
@@ -284,9 +254,6 @@ public class ChatActivity extends AppCompatActivity {
             if (!chatModel.isGroup) {
                 popupMenu.getItem(0).setVisible(false);
             }
-            if (!chatModel.adminID.equals(Constants.auth().getCurrentUser().getUid())) {
-                popupMenu.getItem(3).setVisible(false);
-            }
             menu.show();
 
             menu.setOnMenuItemClickListener(item -> {
@@ -294,10 +261,6 @@ public class ChatActivity extends AppCompatActivity {
                     startActivity(new Intent(this, GroupSettingActivity.class));
                 } else if (item.getItemId() == R.id.reminder) {
                     showCalender();
-                } else if (item.getItemId() == R.id.run) {
-                    runTopic();
-                } else if (item.getItemId() == R.id.contribution) {
-                    contributions();
                 }
                 return true;
             });
@@ -308,7 +271,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.chat.setHasFixedSize(false);
 
         binding.clip.setOnClickListener(v -> {
-            ChatMenu chatMenu = new ChatMenu(chatModel, imageSelectionListener);
+            ChatMenu chatMenu = new ChatMenu(chatModel, chatMenuListener);
             chatMenu.show(getSupportFragmentManager(), chatMenu.getTag());
         });
 
@@ -329,8 +292,10 @@ public class ChatActivity extends AppCompatActivity {
                     value = userModel.name + " typing...";
                     binding.clip.setVisibility(View.GONE);
                 }
-                if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(value);
-                else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(value);
+                if (chatModel.isGroup)
+                    Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(value);
+                else
+                    Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(value);
             }
 
             @Override
@@ -404,10 +369,10 @@ public class ChatActivity extends AppCompatActivity {
         MaterialButton run = dialog.findViewById(R.id.run);
         MaterialButton close = dialog.findViewById(R.id.close);
 
-        close.setOnClickListener(v ->  dialog.dismiss());
+        close.setOnClickListener(v -> dialog.dismiss());
 
         run.setOnClickListener(v -> {
-            if (topic.getEditText().getText().toString().isEmpty()){
+            if (topic.getEditText().getText().toString().isEmpty()) {
                 topic.setErrorEnabled(true);
                 topic.getEditText().setError("Topic is empty");
             } else {
@@ -523,11 +488,63 @@ public class ChatActivity extends AppCompatActivity {
         }
     };
 
-    ImageSelectionListener imageSelectionListener = () -> {
-        Intent intent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(Intent.createChooser(intent, ""), PICK_FROM_GALLERY);
+    ChatMenuListener chatMenuListener = new ChatMenuListener() {
+        @Override
+        public void imagePick() {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(Intent.createChooser(intent, ""), PICK_FROM_GALLERY);
+        }
+
+        @Override
+        public void sales() {
+            showSalesMenu();
+        }
+
+        @Override
+        public void stocks() {
+
+        }
+
+        @Override
+        public void expenses() {
+
+        }
+
+        @Override
+        public void run() {
+            runTopic();
+        }
+
+        @Override
+        public void contribution() {
+            contributions();
+        }
     };
+
+    private void showSalesMenu() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.sales_menu);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        dialog.setCancelable(true);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.BottomSheetAnim;
+        dialog.show();
+
+        MaterialButton products = dialog.findViewById(R.id.products);
+        MaterialButton services = dialog.findViewById(R.id.services);
+
+        services.setOnClickListener(v -> {
+
+        });
+
+        products.setOnClickListener(v -> {
+            dialog.dismiss();
+            ShowProducts showProducts = new ShowProducts(chatModel);
+            showProducts.show(getSupportFragmentManager(), showProducts.getTag());
+        });
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -625,7 +642,8 @@ public class ChatActivity extends AppCompatActivity {
                                     }
                                     ArrayList<String> ids = new ArrayList<>();
                                     for (UserModel users : chatModel.groupMembers) {
-                                        if (!users.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(users.id);
+                                        if (!users.id.equals(Constants.auth().getCurrentUser().getUid()))
+                                            ids.add(users.id);
                                     }
                                     String[] id = ids.toArray(new String[0]);
                                     new FcmNotificationsSender(id, chatModel.name, m, this, chatModel.id, false).SendNotifications();
@@ -668,22 +686,7 @@ public class ChatActivity extends AppCompatActivity {
                     map.put("lastMessage", m);
                     map.put("isMoneyShared", false);
 
-                    if (chatModel.isGroup && chatModel.isSocoGroup) {
-                        Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).updateChildren(map)
-                                .addOnSuccessListener(unused2 -> {
-                                    binding.message.setText("");
-                                    if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-                                    else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue("online");
-                                    ArrayList<String> ids = new ArrayList<>();
-                                    for (UserModel userModel : chatModel.groupMembers) {
-                                        if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(userModel.id);
-                                    }
-                                    String[] id = ids.toArray(new String[0]);
-                                    new FcmNotificationsSender(id, chatModel.name, m, this, chatModel.id, false).SendNotifications();
-                                });
-                    } else {
-                        update(map);
-                    }
+                    update(map);
                 });
     }
 
@@ -702,7 +705,8 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         ArrayList<String> ids = new ArrayList<>();
                         for (UserModel userModel : chatModel.groupMembers) {
-                            if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid())) ids.add(userModel.id);
+                            if (!userModel.id.equals(Constants.auth().getCurrentUser().getUid()))
+                                ids.add(userModel.id);
                         }
                         String[] id = ids.toArray(new String[0]);
                         Log.d(TAG, "update: " + id.length);
@@ -723,8 +727,10 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (chatModel.isGroup) Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
-        else Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(status);
+        if (chatModel.isGroup)
+            Constants.databaseReference().child(Constants.STATUS).child(chatModel.id).setValue(status);
+        else
+            Constants.databaseReference().child(Constants.STATUS).child(Constants.auth().getCurrentUser().getUid()).setValue(status);
     }
 
     @Override

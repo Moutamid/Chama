@@ -37,9 +37,7 @@ import com.moutamid.chama.utilis.Constants;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class GroupSettingActivity extends AppCompatActivity {
     ActivityGroupSettingBinding binding;
@@ -222,12 +220,12 @@ public class GroupSettingActivity extends AppCompatActivity {
         assign.setOnClickListener(v -> {
             int checkedId = rulesGroup.getCheckedRadioButtonId();
             String selected;
-            if (checkedId == R.id.moneyRole) {
-                selected = "Handle Money";
-            } else if (checkedId == R.id.edit) {
-                selected = "Edit Group";
-            } else if (checkedId == R.id.owner) {
-                selected = "OWNER";
+            if (checkedId == R.id.sale) {
+                selected = "Sale";
+            } else if (checkedId == R.id.stock) {
+                selected = "Stock";
+            } else if (checkedId == R.id.expenses) {
+                selected = "Expenses";
             } else if (checkedId == R.id.manageProducts) {
                 selected = "Products Manager";
             } else selected = "UNKNOWN_ROLE";
@@ -242,8 +240,12 @@ public class GroupSettingActivity extends AppCompatActivity {
                 users.add(user);
             }
             chatModel.groupMembers = new ArrayList<>(users);
-            if (chatModel.isGroup && chatModel.isSocoGroup) {
-                Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).setValue(chatModel);
+//            if (chatModel.isGroup && chatModel.isSoccoGroup) {
+//                Constants.databaseReference().child(Constants.SOCO).child(chatModel.id).setValue(chatModel);
+//            }
+            for (UserModel user : chatModel.groupMembers) {
+                Constants.databaseReference().child(Constants.CHATS).child(user.id)
+                        .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers);
             }
             adapter.notifyItemChanged(pos);
 
@@ -252,7 +254,6 @@ public class GroupSettingActivity extends AppCompatActivity {
                     Admins admin = new Admins(selectedUser.id, "Products Manager");
                     Constants.databaseReference().child(Constants.ADMINS).push().setValue(admin);
                 }
-                dialog.dismiss();
             } else if (checkedId == R.id.no) {
                 UserModel finalSelectedUser = selectedUser;
                 Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
@@ -272,8 +273,8 @@ public class GroupSettingActivity extends AppCompatActivity {
                         }
                     }
                 });
-                dialog.dismiss();
             }
+            dialog.dismiss();
         });
         Log.d(TAG, "showDialog: ");
     }

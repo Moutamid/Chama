@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +42,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.ProductListActivity;
-import com.moutamid.chama.adapters.ProductBuyAdapter;
 import com.moutamid.chama.adapters.ProductHomeAdapter;
 import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.bottomsheets.BuyProduct;
@@ -156,7 +154,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private void setUpProducts() {
-        binding.products.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.products.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         binding.products.setHasFixedSize(false);
 
         ArrayList<ProductModel> list = new ArrayList<>();
@@ -169,17 +167,17 @@ public class DashboardFragment extends Fragment {
                             list.add(productModel);
                         }
                     }
-                    ProductHomeAdapter adapter = new ProductHomeAdapter(requireContext(), list, model -> {
+                    ProductHomeAdapter adapter = new ProductHomeAdapter(mContext, list, model -> {
                         BuyProduct fragment = new BuyProduct(model);
                         fragment.show(getChildFragmentManager(), fragment.getTag());
                     });
                     binding.products.setAdapter(adapter);
                 }).addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
         binding.viewAll.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), ProductListActivity.class));
+            startActivity(new Intent(mContext, ProductListActivity.class));
         });
 
     }
@@ -466,12 +464,12 @@ public class DashboardFragment extends Fragment {
                     dialog.dismiss();
                 }).addOnFailureListener(e -> {
                     dialog.dismiss();
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void setupTimeline() {
-        binding.timelineRC.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.timelineRC.setLayoutManager(new LinearLayoutManager(mContext));
         binding.timelineRC.setHasFixedSize(false);
         ArrayList<TimelineModel> list = new ArrayList<>();
         Constants.databaseReference().child(Constants.TIMELINE).child(Constants.auth().getCurrentUser().getUid())

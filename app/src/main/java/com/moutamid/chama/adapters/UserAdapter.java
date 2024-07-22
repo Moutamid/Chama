@@ -54,6 +54,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserVH> implem
         } else {
             holder.radio.setVisibility(View.GONE);
         }
+        holder.email.setText(userModel.email);
         holder.name.setText(userModel.name);
         Glide.with(context).load(userModel.image).placeholder(R.drawable.profile_icon).into(holder.image);
 
@@ -114,13 +115,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserVH> implem
 
     public class UserVH extends RecyclerView.ViewHolder {
         ImageView image;
-        TextView name;
+        TextView name, email;
         MaterialRadioButton radio;
 
         public UserVH(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             name = itemView.findViewById(R.id.name);
+            email = itemView.findViewById(R.id.email);
             radio = itemView.findViewById(R.id.radio);
         }
     }

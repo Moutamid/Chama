@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.ProductListActivity;
+import com.moutamid.chama.listener.Buy;
 import com.moutamid.chama.models.ProductModel;
 
 import java.util.ArrayList;
@@ -21,9 +22,9 @@ import java.util.ArrayList;
 public class ProductHomeAdapter extends RecyclerView.Adapter<ProductHomeAdapter.ProductVH> {
     Context context;
     ArrayList<ProductModel> list;
-    ProductListActivity.Buy buy;
+    Buy buy;
 
-    public ProductHomeAdapter(Context context, ArrayList<ProductModel> list, ProductListActivity.Buy buy) {
+    public ProductHomeAdapter(Context context, ArrayList<ProductModel> list, Buy buy) {
         this.context = context;
         this.list = list;
         this.buy = buy;

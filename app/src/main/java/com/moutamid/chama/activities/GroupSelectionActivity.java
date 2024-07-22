@@ -116,10 +116,12 @@ public class GroupSelectionActivity extends AppCompatActivity {
         receiverModel.isGroup = true;
 
         senderModel.isMoneyShared = false;
-        senderModel.isSocoGroup = false;
+        senderModel.isSoccoGroup = binding.sacco.isChecked();
+        senderModel.isBusinessGroup = binding.business.isChecked();
 
         receiverModel.isMoneyShared = false;
-        receiverModel.isSocoGroup = false;
+        receiverModel.isSoccoGroup = binding.sacco.isChecked();
+        receiverModel.isBusinessGroup = binding.business.isChecked();
 
         senderModel.adminID = Constants.auth().getCurrentUser().getUid();
         receiverModel.adminID = Constants.auth().getCurrentUser().getUid();
@@ -138,6 +140,7 @@ public class GroupSelectionActivity extends AppCompatActivity {
                         int finalI = i;
                         Constants.databaseReference().child(Constants.CHATS).child(userModel.id)
                                 .child(ID).setValue(receiverModel).addOnSuccessListener(unused1 -> {
+                                    Constants.dismissDialog();
                                     if (finalI >= currentItems.size() - 1) {
                                         Stash.put(Constants.CHATS, senderModel);
                                         startActivity(new Intent(GroupSelectionActivity.this, ChatActivity.class));

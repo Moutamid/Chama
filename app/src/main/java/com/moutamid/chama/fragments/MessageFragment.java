@@ -78,26 +78,7 @@ public class MessageFragment extends Fragment {
     public void onResume() {
         super.onResume();
         list = new ArrayList<>();
-        Constants.databaseReference().child(Constants.SOCO)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Log.d(TAG, "onResume: SOCO");
-                        list.clear();
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            ChatModel model = snapshot.getValue(ChatModel.class);
-                            list.add(model);
-                        }
-                        Log.d(TAG, "onResume: " + list.size());
-                        getMessages();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        dialog.dismiss();
-                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        getMessages();
     }
 
     private void getMessages() {

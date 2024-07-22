@@ -29,25 +29,25 @@
             android:orientation="vertical">
 
             <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/moneyRole"
+                android:id="@+id/sale"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="12dp"
-                android:text="Can Send/Withdraw Money" />
+                android:text="Sale" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/edit"
+                android:id="@+id/stock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="12dp"
-                android:text="Can Edit Group" />
+                android:text="Stock" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/owner"
+                android:id="@+id/expenses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="12dp"
-                android:text="Owner" />
+                android:text="Expenses" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/manageProducts"
