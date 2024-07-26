@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bottomsheet_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <View
+        android:layout_width="60dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="10dp"
+        android:background="@drawable/round" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:cardBackgroundColor="@color/grey"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/text"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_header_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Name"
+                    android:textColor="@color/white" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_header_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Quanity"
+                    android:textColor="@color/white" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_header_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Unit Price"
+                    android:textColor="@color/white" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_header_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="Total"
+                    android:textColor="@color/white" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/productName"
+                    tools:text="Salt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/quanity"
+                    tools:text="x1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/price"
+                    tools:text="$12.36"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/total"
+                    tools:text="$12.36"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/text_bg"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Payment Type: "
+            android:textSize="18sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/paymentmethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/cash"
+                style="@style/ChipsColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Cash"
+                android:textSize="16sp"
+                app:chipCornerRadius="4dp"
+                app:textEndPadding="13dp"
+                app:textStartPadding="13dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/credit"
+                style="@style/ChipsColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:checked="true"
+                android:text="Credit"
+                android:textSize="16sp"
+                app:chipCornerRadius="4dp"
+                app:textEndPadding="13dp"
+                app:textStartPadding="13dp" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/personName"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="Customer Name"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:helperTextEnabled="true"
+        app:helperTextTextColor="@color/red">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sell"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Sell"
+        android:textSize="16sp" />
+
+</LinearLayout>

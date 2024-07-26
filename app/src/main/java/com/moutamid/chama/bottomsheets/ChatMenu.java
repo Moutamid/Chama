@@ -1,6 +1,7 @@
 package com.moutamid.chama.bottomsheets;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -12,8 +13,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.fxn.stash.Stash;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.moutamid.chama.activities.ProductsManageActivity;
 import com.moutamid.chama.databinding.ChatMenuBinding;
 import com.moutamid.chama.listener.ChatMenuListener;
 import com.moutamid.chama.models.ChatModel;
@@ -37,16 +40,20 @@ public class ChatMenu extends BottomSheetDialogFragment {
         boolean stock = false;
         boolean sale = false;
         boolean expenses = false;
+        boolean products = false;
         if (chatModel.isGroup) {
             for (UserModel users : chatModel.groupMembers) {
                 if (users.id.equals(Constants.auth().getCurrentUser().getUid())) {
-                    stock = users.role.equals("Stock");
-                    sale = users.role.equals("Sale");
-                    expenses = users.role.equals("Expenses");
+                    stock = users.role.equals("Stock") || users.role.equals("Products Manager") || users.role.equals("OWNER");
+                    sale = users.role.equals("Sale") || users.role.equals("Products Manager") || users.role.equals("OWNER");
+                    products = users.role.equals("Products Manager") || users.role.equals("OWNER");
+                    expenses = users.role.equals("Expenses") || users.role.equals("OWNER");
                     break;
                 }
             }
         }
+        int vis = products ? View.VISIBLE : View.GONE;
+        binding.productsLayout.setVisibility(vis);
 
         if (!chatModel.isBusinessGroup) {
             binding.sales.setVisibility(View.GONE);
@@ -82,6 +89,12 @@ public class ChatMenu extends BottomSheetDialogFragment {
         binding.sendPicture.setOnClickListener(v -> {
             dismiss();
             chatMenuListener.imagePick();
+        });
+
+        binding.products.setOnClickListener(v -> {
+            dismiss();
+            Stash.put(Constants.PRODUCT_REFERENCE, chatModel);
+            startActivity(new Intent(requireContext(), ProductsManageActivity.class));
         });
 
         boolean finalSale = sale;

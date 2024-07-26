@@ -20,7 +20,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.moutamid.chama.R;
 import com.moutamid.chama.activities.ProductEditActivity;
-import com.moutamid.chama.fragments.ProductsFragment;
+import com.moutamid.chama.fragments.ProductsAddFragment;
 import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.utilis.Constants;
 
@@ -31,8 +31,8 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
     Context context;
     ArrayList<ProductModel> list;
     ArrayList<ProductModel> listAll;
-    ProductsFragment.Refresh refresh;
-    public ProductsAdapter(Context context, ArrayList<ProductModel> list, ProductsFragment.Refresh refresh) {
+    ProductsAddFragment.Refresh refresh;
+    public ProductsAdapter(Context context, ArrayList<ProductModel> list, ProductsAddFragment.Refresh refresh) {
         this.context = context;
         this.list = list;
         this.refresh = refresh;

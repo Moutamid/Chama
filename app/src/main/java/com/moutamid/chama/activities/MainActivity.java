@@ -159,12 +159,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, SavingActivity.class));
         }
         if (id == R.id.product) {
-            boolean isAdmin = admins.stream().anyMatch(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid()));
-            if (isAdmin) {
-                startActivity(new Intent(this, ProductsActivity.class));
-            } else {
-                startActivity(new Intent(this, ProductListActivity.class));
-            }
+            Stash.clear(Constants.PRODUCT_REFERENCE);
+            startActivity(new Intent(this, ProductListActivity.class));
         }
         if (id == R.id.services) {
             startActivity(new Intent(this, ServicesActivity.class));

@@ -100,32 +100,31 @@ public class DashboardFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(getLayoutInflater(), container, false);
 
-        ArrayList<Admins> admins = new ArrayList<>();
-        Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
-            if (dataSnapshot.exists()) {
-                admins.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Admins admin = snapshot.getValue(Admins.class);
-                    admins.add(admin);
-                }
-                Admins isAdmin = admins.stream().filter(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid())).findFirst().orElse(null);
-                if (isAdmin != null) {
-                    if (isAdmin.role.equals(Constants.OWNER)) {
-                        binding.businessLayout.setVisibility(View.VISIBLE);
-                        binding.productsLayout.setVisibility(View.GONE);
-                        setupLineChart();
-                    } else {
-                        binding.businessLayout.setVisibility(View.GONE);
-                        binding.productsLayout.setVisibility(View.VISIBLE);
-                        setUpProducts();
-                    }
-                } else {
-                    binding.businessLayout.setVisibility(View.GONE);
-                    binding.productsLayout.setVisibility(View.VISIBLE);
-                    setUpProducts();
-                }
-            }
-        });
+//        Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
+//            if (dataSnapshot.exists()) {
+//                admins.clear();
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    Admins admin = snapshot.getValue(Admins.class);
+//                    admins.add(admin);
+//                }
+//                Admins isAdmin = admins.stream().filter(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid())).findFirst().orElse(null);
+//                if (isAdmin != null) {
+//                    if (isAdmin.role.equals(Constants.OWNER)) {
+//                        binding.businessLayout.setVisibility(View.VISIBLE);
+//                        binding.productsLayout.setVisibility(View.GONE);
+//                        setupLineChart();
+//                    } else {
+//                        binding.businessLayout.setVisibility(View.GONE);
+//                        binding.productsLayout.setVisibility(View.VISIBLE);
+//                        setUpProducts();
+//                    }
+//                } else {
+//                    binding.businessLayout.setVisibility(View.GONE);
+//                    binding.productsLayout.setVisibility(View.VISIBLE);
+//                    setUpProducts();
+//                }
+//            }
+//        });
 
         setupTimeline();
 

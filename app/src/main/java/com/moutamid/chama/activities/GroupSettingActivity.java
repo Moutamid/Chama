@@ -248,32 +248,24 @@ public class GroupSettingActivity extends AppCompatActivity {
                         .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers);
             }
             adapter.notifyItemChanged(pos);
-
-            if (checkedId == R.id.manageProducts) {
-                if (selectedUser != null) {
-                    Admins admin = new Admins(selectedUser.id, "Products Manager");
-                    Constants.databaseReference().child(Constants.ADMINS).push().setValue(admin);
-                }
-            } else if (checkedId == R.id.no) {
-                UserModel finalSelectedUser = selectedUser;
-                Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
-                    if (dataSnapshot.exists()) {
-                        String key = null;
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            Admins admin = snapshot.getValue(Admins.class);
-                            if (finalSelectedUser != null) {
-                                if (finalSelectedUser.id.equals(admin.id)) {
-                                    key = snapshot.getKey();
-                                    break;
-                                }
+            UserModel finalSelectedUser = selectedUser;
+            Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
+                if (dataSnapshot.exists()) {
+                    String key = null;
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Admins admin = snapshot.getValue(Admins.class);
+                        if (finalSelectedUser != null) {
+                            if (finalSelectedUser.id.equals(admin.id)) {
+                                key = snapshot.getKey();
+                                break;
                             }
                         }
-                        if (key != null) {
-                            Constants.databaseReference().child(Constants.ADMINS).child(key).removeValue();
-                        }
                     }
-                });
-            }
+                    if (key != null) {
+                        Constants.databaseReference().child(Constants.ADMINS).child(key).removeValue();
+                    }
+                }
+            });
             dialog.dismiss();
         });
         Log.d(TAG, "showDialog: ");

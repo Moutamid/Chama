@@ -1,10 +1,10 @@
 package com.moutamid.chama.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,16 +21,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.FragmentStockInBinding;
 import com.moutamid.chama.databinding.StockTableLayoutBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.models.StockModel;
 import com.moutamid.chama.utilis.Constants;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StockInFragment extends Fragment {
     FragmentStockInBinding binding;
@@ -38,6 +39,7 @@ public class StockInFragment extends Fragment {
     private static final String TAG = "StockInFragment";
     ArrayList<Stock> stock_out = new ArrayList<>();
     ArrayList<ProductModel> list = new ArrayList<>();
+    ArrayList<ChatModel> groups;
     public StockInFragment() {
         // Required empty public constructor
     }
@@ -46,9 +48,61 @@ public class StockInFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentStockInBinding.inflate(getLayoutInflater(), container, false);
-        Constants.showDialog();
 
-        Constants.databaseReference().child(Constants.STOCK_OUT)
+        ChatModel chatModel = (ChatModel) Stash.getObject(Constants.PRODUCT_REFERENCE, ChatModel.class);
+        Constants.showDialog();
+        if (chatModel != null) {
+            binding.layout.setVisibility(View.GONE);
+            showData(chatModel);
+        } else {
+            binding.layout.setVisibility(View.VISIBLE);
+            manualData();
+        }
+
+        return binding.getRoot();
+    }
+
+    private void manualData() {
+        groups = new ArrayList<>();
+        Constants.databaseReference().child(Constants.CHATS)
+                .child(Constants.auth().getCurrentUser().getUid())
+                .get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            ChatModel model = snapshot.getValue(ChatModel.class);
+                            if (model.isBusinessGroup)
+                                groups.add(model);
+                        }
+                    }
+
+                    List<String> names = groups.stream()
+                            .map(products -> products.name)
+                            .collect(Collectors.toList());
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, names);
+                    binding.groupItem.setAdapter(adapter);
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        binding.search.setOnClickListener(v -> {
+            ChatModel chatModel = groups.stream()
+                    .filter(productModel -> productModel.name.trim().equals(binding.group.getEditText().getText().toString().trim()))
+                    .findFirst()
+                    .orElse(null);
+            if (chatModel != null) {
+                showData(chatModel);
+            } else {
+                Toast.makeText(requireContext(), "No Product Found for this group", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void showData(ChatModel chatModel) {
+        Constants.databaseReference().child(Constants.STOCK_OUT).child(chatModel.id)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -62,7 +116,7 @@ public class StockInFragment extends Fragment {
                                 stock_out.add(new Stock(dataSnapshot.getKey(), subList));
                             }
                         }
-                        Constants.databaseReference().child(Constants.PRODUCTS).get()
+                        Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).get()
                                 .addOnSuccessListener(dataSnapshot -> {
                                     if (dataSnapshot.exists()) {
                                         list.clear();
@@ -70,8 +124,10 @@ public class StockInFragment extends Fragment {
                                             ProductModel productModel = snapshot2.getValue(ProductModel.class);
                                             list.add(productModel);
                                         }
+                                    } else {
+                                        Toast.makeText(requireContext(), "Nothing to show", Toast.LENGTH_SHORT).show();
                                     }
-                                    getStockList();
+                                    getStockList(chatModel);
                                 }).addOnFailureListener(e -> {
                                     Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                 });
@@ -83,12 +139,10 @@ public class StockInFragment extends Fragment {
                         Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        return binding.getRoot();
     }
 
-    private void getStockList() {
-        Constants.databaseReference().child(Constants.STOCK)
+    private void getStockList(ChatModel chatModel) {
+        Constants.databaseReference().child(Constants.STOCK).child(chatModel.id)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -104,7 +158,7 @@ public class StockInFragment extends Fragment {
                                 mainList.add(new Stock(dataSnapshot.getKey(), subList));
                             }
                         }
-                        updateTable(mainList);
+                        if (isAdded()) updateTable(mainList);
                     }
 
                     @Override

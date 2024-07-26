@@ -15,27 +15,30 @@ import android.widget.Toast;
 
 import com.fxn.stash.Stash;
 import com.google.firebase.database.DataSnapshot;
-import com.moutamid.chama.R;
 import com.moutamid.chama.activities.AddProductActivity;
 import com.moutamid.chama.activities.AddStockActivity;
 import com.moutamid.chama.adapters.ProductsAdapter;
-import com.moutamid.chama.databinding.FragmentProductsBinding;
+import com.moutamid.chama.databinding.FragmentProductsAddBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
 
-public class ProductsFragment extends Fragment {
-    FragmentProductsBinding binding;
+public class ProductsAddFragment extends Fragment {
+    FragmentProductsAddBinding binding;
     ArrayList<ProductModel> list;
-    public ProductsFragment() {
+    ChatModel chatModel;
+    public ProductsAddFragment() {
         // Required empty public constructor
     }
     ProductsAdapter adapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentProductsBinding.inflate(getLayoutInflater(), container, false);
+        binding = FragmentProductsAddBinding.inflate(getLayoutInflater(), container, false);
+
+        chatModel = (ChatModel) Stash.getObject(Constants.PRODUCT_REFERENCE, ChatModel.class);
 
         binding.products.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.products.setHasFixedSize(false);
@@ -84,7 +87,7 @@ public class ProductsFragment extends Fragment {
 
     private void refreshList() {
         list = new ArrayList<>();
-        Constants.databaseReference().child(Constants.PRODUCTS).get()
+        Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).get()
                 .addOnSuccessListener(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {

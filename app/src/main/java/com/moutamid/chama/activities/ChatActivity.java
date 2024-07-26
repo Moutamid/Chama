@@ -90,7 +90,6 @@ public class ChatActivity extends AppCompatActivity {
         Constants.initDialog(this);
         chatModel = (ChatModel) Stash.getObject(Constants.CHATS, ChatModel.class);
 
-
         if (!chatModel.isGroup) {
             getUserStatus();
         } else {
@@ -236,7 +235,6 @@ public class ChatActivity extends AppCompatActivity {
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -487,7 +485,6 @@ public class ChatActivity extends AppCompatActivity {
 
         }
     };
-
     ChatMenuListener chatMenuListener = new ChatMenuListener() {
         @Override
         public void imagePick() {
@@ -502,12 +499,13 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void stocks() {
-
+            Stash.put(Constants.PRODUCT_REFERENCE, chatModel);
+            startActivity(new Intent(ChatActivity.this, AddStockActivity.class));
         }
 
         @Override
         public void expenses() {
-
+            startActivity(new Intent(ChatActivity.this, ExpensesActivity.class));
         }
 
         @Override

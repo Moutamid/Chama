@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivityProductsBinding;
-import com.moutamid.chama.fragments.ProductsFragment;
+import com.moutamid.chama.fragments.ProductsAddFragment;
 import com.moutamid.chama.fragments.StockFragment;
 import com.moutamid.chama.utilis.Constants;
 
-public class ProductsActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class ProductsManageActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     ActivityProductsBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,6 @@ public class ProductsActivity extends AppCompatActivity implements BottomNavigat
         binding.bottomNav.setItemActiveIndicatorColor(ColorStateList.valueOf(getResources().getColor(R.color.white)));
         binding.bottomNav.setOnNavigationItemSelectedListener(this);
         binding.bottomNav.setSelectedItemId(R.id.products);
-
     }
 
     @Override
@@ -41,7 +40,7 @@ public class ProductsActivity extends AppCompatActivity implements BottomNavigat
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.products) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new ProductsFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new ProductsAddFragment()).commit();
         } else if (id == R.id.stock) {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new StockFragment()).commit();
         }

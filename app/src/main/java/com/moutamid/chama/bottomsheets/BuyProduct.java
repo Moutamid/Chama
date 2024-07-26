@@ -30,7 +30,7 @@ public class BuyProduct extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BuyProductBinding.inflate(getLayoutInflater(), container, false);
 
-        binding.toolbar.name.setText("Buy Product");
+        binding.toolbar.name.setText("Sell Product");
         binding.toolbar.back.setOnClickListener(v -> dismiss());
 
         Glide.with(this).load(model.image).into(binding.productImage);
@@ -65,9 +65,8 @@ public class BuyProduct extends BottomSheetDialogFragment {
         });
 
         binding.buy.setOnClickListener(v -> {
-            dismiss();
-            Stash.put(Constants.BUY_PRODUCT, model);
-            startActivity(new Intent(requireContext(), CheckOutActivity.class).putExtra(Constants.QUANTITY, quantity));
+            PaymentDialog paymentDialog = new PaymentDialog(model, quantity);
+            paymentDialog.show(getChildFragmentManager(), paymentDialog.getTag());
         });
 
         return binding.getRoot();

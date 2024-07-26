@@ -15,7 +15,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.moutamid.chama.R;
-import com.moutamid.chama.models.Admins;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +25,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -44,6 +42,7 @@ public class Constants {
     public static final String INCOME = "INCOME";
     public static final String SPENT = "SPENT";
     public static final String TOTAL = "TOTAL";
+    public static final String PRODUCT_REFERENCE = "PRODUCT_REFERENCE";
     public static final String PRODUCTS = "PRODUCTS";
     public static final String EDIT_PRODUCT = "EDIT_PRODUCT";
     public static final String RUNNING_TOPICS = "RUNNING_TOPICS";

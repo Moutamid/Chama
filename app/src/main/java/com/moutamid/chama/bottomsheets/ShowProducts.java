@@ -39,7 +39,7 @@ public class ShowProducts extends BottomSheetDialogFragment {
 
         Constants.showDialog();
         list = new ArrayList<>();
-        Constants.databaseReference().child(Constants.PRODUCTS).get()
+        Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).get()
                 .addOnSuccessListener(dataSnapshot -> {
                     Constants.dismissDialog();
                     if (dataSnapshot.exists()) {
@@ -56,8 +56,8 @@ public class ShowProducts extends BottomSheetDialogFragment {
                         binding.products.setVisibility(View.VISIBLE);
                     }
                     ProductChatAdapter adapter = new ProductChatAdapter(requireContext(), list, model -> {
-                        Sell sell = new Sell();
-                        sell.show(getChildFragmentManager(), sell.getTag());
+                        BuyProduct buy = new BuyProduct(model);
+                        buy.show(getChildFragmentManager(), buy.getTag());
                     });
                     binding.products.setAdapter(adapter);
                 }).addOnFailureListener(e -> {

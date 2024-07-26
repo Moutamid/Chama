@@ -80,7 +80,7 @@
             android:name=".activities.SettingActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.ProductsActivity"
+            android:name=".activities.ProductsManageActivity"
             android:exported="false" />
         <activity
             android:name=".activities.ChatActivity"

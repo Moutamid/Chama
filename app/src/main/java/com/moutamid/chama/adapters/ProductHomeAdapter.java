@@ -11,9 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.button.MaterialButton;
 import com.moutamid.chama.R;
-import com.moutamid.chama.activities.ProductListActivity;
 import com.moutamid.chama.listener.Buy;
 import com.moutamid.chama.models.ProductModel;
 
@@ -44,7 +42,8 @@ public class ProductHomeAdapter extends RecyclerView.Adapter<ProductHomeAdapter.
         holder.productName.setText(model.name);
 
         holder.itemView.setOnClickListener(v -> {
-            buy.onBuy(model);
+            if (buy != null)
+                buy.onBuy(model);
         });
     }
 
@@ -57,6 +56,7 @@ public class ProductHomeAdapter extends RecyclerView.Adapter<ProductHomeAdapter.
         ImageView productImage;
         TextView productName;
         TextView price;
+
         public ProductVH(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.productImage);

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".activities.ProductsActivity">
+    tools:context=".activities.ProductsManageActivity">
 
     <include layout="@layout/toolbar_activity" android:id="@+id/toolbar" />
 

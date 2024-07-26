@@ -14,6 +14,7 @@ import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.chip.Chip;
 import com.moutamid.chama.R;
 import com.moutamid.chama.databinding.ActivityAddProductBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
 import com.moutamid.chama.utilis.Constants;
 
@@ -26,6 +27,8 @@ import java.util.UUID;
 public class AddProductActivity extends AppCompatActivity {
     ActivityAddProductBinding binding;
     Uri imageUri;
+
+    ChatModel chatModel;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,8 @@ public class AddProductActivity extends AppCompatActivity {
         binding = ActivityAddProductBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Constants.initDialog(this);
+
+        chatModel = (ChatModel) Stash.getObject(Constants.PRODUCT_REFERENCE, ChatModel.class);
 
         binding.toolbar.name.setText("Add Product");
         binding.toolbar.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
@@ -84,7 +89,7 @@ public class AddProductActivity extends AppCompatActivity {
         }
         product.measuring_unit = measuring_unit;
 
-        Constants.databaseReference().child(Constants.PRODUCTS).child(product.id).setValue(product)
+        Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).child(product.id).setValue(product)
                 .addOnSuccessListener(unused -> {
                     Constants.dismissDialog();
                     Toast.makeText(this, "Product Added", Toast.LENGTH_SHORT).show();
