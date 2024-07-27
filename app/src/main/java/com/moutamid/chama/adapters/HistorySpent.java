@@ -34,16 +34,16 @@ public class HistorySpent extends RecyclerView.Adapter<HistorySpent.HistoryVH> {
     @Override
     public void onBindViewHolder(@NonNull HistoryVH holder, int position) {
         ExpenseModel model = list.get(holder.getAdapterPosition());
-        holder.name.setText(model.getName());
-        if (model.isExpense()){
+        holder.name.setText(model.name);
+        if (model.isExpense){
             holder.isIncome.setText("Spent");
-            holder.price.setText("$" + String.format("%,.2f", model.getPrice()));
+            holder.price.setText("$" + String.format("%,.2f", model.price));
             holder.icon.setImageResource(R.drawable.round_remove_24);
             holder.price.setTextColor(context.getResources().getColor(R.color.red));
             holder.main.setCardBackgroundColor(context.getResources().getColor(R.color.red_light));
         } else {
             holder.isIncome.setText("Income");
-            holder.price.setText("$" + String.format("%,.2f", model.getPrice()));
+            holder.price.setText("$" + String.format("%,.2f", model.price));
             holder.icon.setImageResource(R.drawable.add);
             holder.price.setTextColor(context.getResources().getColor(R.color.bar_withdrawal));
             holder.main.setCardBackgroundColor(context.getResources().getColor(R.color.green_trans));

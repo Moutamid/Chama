@@ -32,6 +32,7 @@ import java.util.Locale;
 public class Constants {
     public static Dialog dialog;
     public static final String STASH_USER = "STASH_USER";
+    public static final String EXPENSES = "EXPENSES";
     public static final String BUY_PRODUCT = "BUY_PRODUCT";
     public static final String QUANTITY = "QUANTITY";
     public static final String STOCK = "STOCK";

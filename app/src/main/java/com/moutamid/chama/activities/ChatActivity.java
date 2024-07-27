@@ -505,7 +505,7 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void expenses() {
-            startActivity(new Intent(ChatActivity.this, ExpensesActivity.class));
+            startActivity(new Intent(ChatActivity.this, ExpensesActivity.class).putExtra("ADMIN", chatModel.adminID));
         }
 
         @Override

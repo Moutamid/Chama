@@ -1,6 +1,5 @@
 package com.moutamid.chama.bottomsheets;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,19 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-import com.fxn.stash.Stash;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.moutamid.chama.activities.CheckOutActivity;
 import com.moutamid.chama.databinding.BuyProductBinding;
+import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
-import com.moutamid.chama.utilis.Constants;
 
 public class BuyProduct extends BottomSheetDialogFragment {
     BuyProductBinding binding;
     ProductModel model;
+    ChatModel chatModel;
     int quantity = 1;
-    public BuyProduct(ProductModel model) {
+    public BuyProduct(ProductModel model, ChatModel chatModel) {
         this.model = model;
+        this.chatModel = chatModel;
     }
 
     @Nullable
@@ -65,7 +64,7 @@ public class BuyProduct extends BottomSheetDialogFragment {
         });
 
         binding.buy.setOnClickListener(v -> {
-            PaymentDialog paymentDialog = new PaymentDialog(model, quantity);
+            PaymentDialog paymentDialog = new PaymentDialog(model, quantity, chatModel);
             paymentDialog.show(getChildFragmentManager(), paymentDialog.getTag());
         });
 

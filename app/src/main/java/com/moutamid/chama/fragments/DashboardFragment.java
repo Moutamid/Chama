@@ -47,7 +47,6 @@ import com.moutamid.chama.adapters.TimelineAdapter;
 import com.moutamid.chama.bottomsheets.BuyProduct;
 import com.moutamid.chama.bottomsheets.DateFilter;
 import com.moutamid.chama.databinding.FragmentDashboardBinding;
-import com.moutamid.chama.models.Admins;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.ProductModel;
@@ -65,7 +64,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -167,7 +165,7 @@ public class DashboardFragment extends Fragment {
                         }
                     }
                     ProductHomeAdapter adapter = new ProductHomeAdapter(mContext, list, model -> {
-                        BuyProduct fragment = new BuyProduct(model);
+                        BuyProduct fragment = new BuyProduct(model, null);
                         fragment.show(getChildFragmentManager(), fragment.getTag());
                     });
                     binding.products.setAdapter(adapter);

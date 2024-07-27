@@ -56,7 +56,7 @@ public class ShowProducts extends BottomSheetDialogFragment {
                         binding.products.setVisibility(View.VISIBLE);
                     }
                     ProductChatAdapter adapter = new ProductChatAdapter(requireContext(), list, model -> {
-                        BuyProduct buy = new BuyProduct(model);
+                        BuyProduct buy = new BuyProduct(model, chatModel);
                         buy.show(getChildFragmentManager(), buy.getTag());
                     });
                     binding.products.setAdapter(adapter);

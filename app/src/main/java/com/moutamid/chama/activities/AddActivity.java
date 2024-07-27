@@ -17,11 +17,11 @@ import com.moutamid.chama.models.ExpenseModel;
 import com.moutamid.chama.utilis.Constants;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AddActivity extends AppCompatActivity {
     ActivityAddBinding binding;
     ArrayList<ExpenseModel> list;
-    double income, balance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,27 +32,24 @@ public class AddActivity extends AppCompatActivity {
         binding.toolbar.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         list = new ArrayList<>();
-        list = Stash.getArrayList(Constants.HISTORY, ExpenseModel.class);
-
-        income = Double.parseDouble(Stash.getString(Constants.INCOME, "0"));
-        balance = Double.parseDouble(Stash.getString(Constants.TOTAL, "0"));
-        Log.d("INCOME", "income " +  income);
-
+        String ID = getIntent().getStringExtra("ADMIN");
         binding.addIncome.setOnClickListener(v -> {
             if (binding.amount.getEditText().getText().toString().isEmpty()){
                 Toast.makeText(this, "Add income", Toast.LENGTH_SHORT).show();
             } else {
                 double amount = Double.parseDouble(binding.amount.getEditText().getText().toString());
-                list.add(new ExpenseModel(binding.desc.getEditText().getText().toString(), amount, false));
-                balance = balance + amount;
-                amount = amount + income;
-
-                Stash.put(Constants.HISTORY, list);
-                Stash.put(Constants.INCOME, ""+amount);
-                Stash.put(Constants.TOTAL, ""+balance);
-
-                Toast.makeText(this, "Income Added", Toast.LENGTH_SHORT).show();
-                onBackPressed();
+                ExpenseModel model = new ExpenseModel();
+                model.timestamp = new Date().getTime();
+                model.isExpense = false;
+                model.name = binding.desc.getEditText().getText().toString();
+                model.price = amount;
+                Constants.databaseReference().child(Constants.EXPENSES).child(ID)
+                        .push().setValue(model).addOnFailureListener(e -> {
+                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }).addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Income Added", Toast.LENGTH_SHORT).show();
+                            onBackPressed();
+                        });
             }
         });
 
