@@ -1,5 +1,6 @@
 package com.moutamid.chama.bottomsheets;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,10 +15,12 @@ import com.fxn.stash.Stash;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.moutamid.chama.activities.OrderCompleteActivity;
 import com.moutamid.chama.databinding.PaymentDialogBinding;
+import com.moutamid.chama.listener.BottomSheetDismissListener;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ExpenseModel;
 import com.moutamid.chama.models.MessageModel;
 import com.moutamid.chama.models.ProductModel;
+import com.moutamid.chama.models.SaleModel;
 import com.moutamid.chama.models.StockModel;
 import com.moutamid.chama.models.TimelineModel;
 import com.moutamid.chama.models.UserModel;
@@ -35,6 +38,7 @@ public class PaymentDialog extends BottomSheetDialogFragment {
     ProductModel productModel;
     int quantity;
     ChatModel chatModel;
+    private BottomSheetDismissListener listener;
 
     public PaymentDialog(ProductModel productModel, int quantity, ChatModel chatModel) {
         this.productModel = productModel;
@@ -158,7 +162,7 @@ public class PaymentDialog extends BottomSheetDialogFragment {
                     .child(timelineModel.id).setValue(timelineModel).addOnSuccessListener(unused -> {
                         if (finalI == groupMembers.size() - 1) {
                             productModel.available_stock = productModel.available_stock - quantity;
-                            Constants.databaseReference().child(Constants.PRODUCTS).child(productModel.id).setValue(productModel)
+                            Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).child(productModel.id).setValue(productModel)
                                     .addOnSuccessListener(unused1 -> {
                                         updateStock();
                                     }).addOnFailureListener(e -> {
@@ -194,8 +198,24 @@ public class PaymentDialog extends BottomSheetDialogFragment {
     }
 
     private void updateSale() {
-        Constants.dismissDialog();
-        dismiss();
+        SaleModel saleModel = new SaleModel();
+        saleModel.id = UUID.randomUUID().toString();
+        saleModel.product_id = productModel.id;
+        saleModel.unit_price = productModel.unit_price;
+        saleModel.date = new Date().getTime();
+        saleModel.quantity = quantity;
+        saleModel.name = productModel.name.trim();
+        saleModel.personName = binding.personName.getEditText().getText().toString();
+
+        String type = binding.credit.isChecked() ? Constants.CREDIT_SALE : Constants.CASH_SALE;
+        Constants.databaseReference().child(type).child(chatModel.id).child(saleModel.name).child(saleModel.id)
+                .setValue(saleModel).addOnSuccessListener(unused -> {
+                    Constants.dismissDialog();
+                    dismiss();
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private boolean valid() {
@@ -207,4 +227,17 @@ public class PaymentDialog extends BottomSheetDialogFragment {
         }
         return true;
     }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (listener != null) {
+            listener.onBottomSheetDismissed();
+        }
+    }
+
+    public void setListener(BottomSheetDismissListener listener) {
+        this.listener = listener;
+    }
+
 }

@@ -39,10 +39,8 @@ public class Constants {
     public static final String ORDERS = "ORDERS";
     public static final String STOCK_OUT = "STOCK_OUT";
     public static final String ADMINS = "ADMINS";
-    public static final String HISTORY = "HISTORY";
-    public static final String INCOME = "INCOME";
-    public static final String SPENT = "SPENT";
-    public static final String TOTAL = "TOTAL";
+    public static final String CASH_SALE = "CASH_SALE";
+    public static final String CREDIT_SALE = "CREDIT_SALE";
     public static final String PRODUCT_REFERENCE = "PRODUCT_REFERENCE";
     public static final String PRODUCTS = "PRODUCTS";
     public static final String EDIT_PRODUCT = "EDIT_PRODUCT";

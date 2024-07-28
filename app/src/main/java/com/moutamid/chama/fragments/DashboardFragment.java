@@ -97,32 +97,8 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(getLayoutInflater(), container, false);
-
-//        Constants.databaseReference().child(Constants.ADMINS).get().addOnSuccessListener(dataSnapshot -> {
-//            if (dataSnapshot.exists()) {
-//                admins.clear();
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Admins admin = snapshot.getValue(Admins.class);
-//                    admins.add(admin);
-//                }
-//                Admins isAdmin = admins.stream().filter(admins1 -> Objects.equals(admins1.id, Constants.auth().getCurrentUser().getUid())).findFirst().orElse(null);
-//                if (isAdmin != null) {
-//                    if (isAdmin.role.equals(Constants.OWNER)) {
-//                        binding.businessLayout.setVisibility(View.VISIBLE);
-//                        binding.productsLayout.setVisibility(View.GONE);
-//                        setupLineChart();
-//                    } else {
-//                        binding.businessLayout.setVisibility(View.GONE);
-//                        binding.productsLayout.setVisibility(View.VISIBLE);
-//                        setUpProducts();
-//                    }
-//                } else {
-//                    binding.businessLayout.setVisibility(View.GONE);
-//                    binding.productsLayout.setVisibility(View.VISIBLE);
-//                    setUpProducts();
-//                }
-//            }
-//        });
+        setupLineChart();
+        setUpProducts();
 
         setupTimeline();
 
@@ -160,8 +136,10 @@ public class DashboardFragment extends Fragment {
                     if (dataSnapshot.exists()) {
                         list.clear();
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            ProductModel productModel = snapshot.getValue(ProductModel.class);
-                            list.add(productModel);
+                            for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                ProductModel productModel = snapshot2.getValue(ProductModel.class);
+                                list.add(productModel);
+                            }
                         }
                     }
                     ProductHomeAdapter adapter = new ProductHomeAdapter(mContext, list, model -> {

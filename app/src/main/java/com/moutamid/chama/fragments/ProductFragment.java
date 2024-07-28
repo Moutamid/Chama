@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.adapters.MessageAdapter;
 import com.moutamid.chama.adapters.ProductHomeAdapter;
 import com.moutamid.chama.adapters.ProductsAdapter;
+import com.moutamid.chama.bottomsheets.BuyProduct;
 import com.moutamid.chama.databinding.FragmentProductBinding;
 import com.moutamid.chama.models.ChatModel;
 import com.moutamid.chama.models.ProductModel;
@@ -93,7 +94,10 @@ public class ProductFragment extends Fragment {
                             list.add(productModel);
                         }
                     }
-                    ProductHomeAdapter adapter = new ProductHomeAdapter(requireContext(), list, null);
+                    ProductHomeAdapter adapter = new ProductHomeAdapter(requireContext(), list, model -> {
+                        BuyProduct fragment = new BuyProduct(model, null);
+                        fragment.show(getChildFragmentManager(), fragment.getTag());
+                    });
                     binding.products.setAdapter(adapter);
                 }).addOnFailureListener(e -> {
                     Constants.dismissDialog();

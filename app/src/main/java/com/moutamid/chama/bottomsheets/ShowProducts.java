@@ -57,6 +57,7 @@ public class ShowProducts extends BottomSheetDialogFragment {
                     }
                     ProductChatAdapter adapter = new ProductChatAdapter(requireContext(), list, model -> {
                         BuyProduct buy = new BuyProduct(model, chatModel);
+                        buy.setListener(this::dismiss);
                         buy.show(getChildFragmentManager(), buy.getTag());
                     });
                     binding.products.setAdapter(adapter);

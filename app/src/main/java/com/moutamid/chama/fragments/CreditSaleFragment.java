@@ -2,65 +2,118 @@ package com.moutamid.chama.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.moutamid.chama.R;
+import com.moutamid.chama.adapters.SaleMainAdapter;
+import com.moutamid.chama.databinding.FragmentCreditSaleBinding;
+import com.moutamid.chama.models.ChatModel;
+import com.moutamid.chama.models.SaleModel;
+import com.moutamid.chama.models.Sell;
+import com.moutamid.chama.utilis.Constants;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CreditSaleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class CreditSaleFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    FragmentCreditSaleBinding binding;
+    ArrayList<Sell> saleList = new ArrayList<>();
+    ArrayList<ChatModel> groups;
     public CreditSaleFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CreditSaleFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CreditSaleFragment newInstance(String param1, String param2) {
-        CreditSaleFragment fragment = new CreditSaleFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_credit_sale, container, false);
+        binding = FragmentCreditSaleBinding.inflate(getLayoutInflater(), container, false);
+        binding.main.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.main.setHasFixedSize(false);
+
+        Constants.showDialog();
+        manualData();
+        return binding.getRoot();
     }
+
+    private void manualData() {
+        groups = new ArrayList<>();
+        Constants.databaseReference().child(Constants.CHATS)
+                .child(Constants.auth().getCurrentUser().getUid())
+                .get().addOnSuccessListener(dataSnapshot -> {
+                    Constants.dismissDialog();
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            ChatModel model = snapshot.getValue(ChatModel.class);
+                            if (model.isBusinessGroup)
+                                groups.add(model);
+                        }
+                    }
+
+                    List<String> names = groups.stream()
+                            .map(products -> products.name)
+                            .collect(Collectors.toList());
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, names);
+                    binding.groupItem.setAdapter(adapter);
+                }).addOnFailureListener(e -> {
+                    Constants.dismissDialog();
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        binding.search.setOnClickListener(v -> {
+            ChatModel chatModel = groups.stream()
+                    .filter(productModel -> productModel.name.trim().equals(binding.group.getEditText().getText().toString().trim()))
+                    .findFirst()
+                    .orElse(null);
+            if (chatModel != null) {
+                showData(chatModel);
+            } else {
+                Toast.makeText(requireContext(), "No Product Found for this group", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showData(ChatModel chatModel) {
+        Constants.databaseReference().child(Constants.CREDIT_SALE).child(chatModel.id)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                ArrayList<SaleModel> subList = new ArrayList<>();
+                                for (DataSnapshot dataSnapshot2 : dataSnapshot.getChildren()) {
+                                    SaleModel model = dataSnapshot2.getValue(SaleModel.class);
+                                    subList.add(model);
+                                }
+                                saleList.add(new Sell(dataSnapshot.getKey(), subList));
+                            }
+                            if (isAdded()) updateTable(saleList);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Constants.dismissDialog();
+                        Toast.makeText(requireContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void updateTable(ArrayList<Sell> mainList) {
+        SaleMainAdapter adapter = new SaleMainAdapter(requireContext(), mainList);
+        binding.main.setAdapter(adapter);
+    }
+
+
 }

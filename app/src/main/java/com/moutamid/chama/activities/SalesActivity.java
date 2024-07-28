@@ -13,6 +13,7 @@ import com.moutamid.chama.adapters.ViewPagerFragmentAdapter;
 import com.moutamid.chama.databinding.ActivitySalesBinding;
 import com.moutamid.chama.fragments.CashSaleFragment;
 import com.moutamid.chama.fragments.CreditSaleFragment;
+import com.moutamid.chama.utilis.Constants;
 
 public class SalesActivity extends AppCompatActivity {
     ActivitySalesBinding binding;
@@ -21,6 +22,8 @@ public class SalesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivitySalesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Constants.initDialog(this);
 
         binding.toolbar.name.setText("Sales");
         binding.toolbar.back.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
