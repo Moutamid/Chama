@@ -55,13 +55,143 @@
                 app:strokeColor="@color/grey"
                 app:cardElevation="0dp">
 
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/linechart"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_margin="5dp" />
+                    android:layout_height="match_parent"
+                    android:padding="5dp"
+                    android:orientation="vertical">
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/linechart"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginVertical="5dp">
+
+                        <LinearLayout
+                            android:id="@+id/allListing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/round_circle_blue"
+                            android:layout_marginEnd="2dp">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:backgroundTint="@color/blue"
+                                android:background="@drawable/round" />
+
+                            <TextView
+                                android:id="@+id/allListingText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/blue"
+                                android:layout_marginStart="5dp"
+                                android:textSize="12sp"
+                                android:text="All Listings" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/sales"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/round_circle"
+                            android:layout_marginHorizontal="2dp">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:backgroundTint="@color/red"
+                                android:background="@drawable/round" />
+
+                            <TextView
+                                android:id="@+id/saleText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/black"
+                                android:layout_marginStart="5dp"
+                                android:textSize="12sp"
+                                android:text="Sales" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/cash"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/round_circle"
+                            android:layout_marginHorizontal="2dp">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:backgroundTint="@color/yellow"
+                                android:background="@drawable/round" />
+
+                            <TextView
+                                android:id="@+id/cashText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/black"
+                                android:layout_marginStart="5dp"
+                                android:textSize="12sp"
+                                android:text="Cash" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/stock"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:background="@drawable/round_circle"
+                            android:layout_marginStart="2dp">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:backgroundTint="@color/purple"
+                                android:background="@drawable/round" />
+
+                            <TextView
+                                android:id="@+id/stockText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/black"
+                                android:layout_marginStart="5dp"
+                                android:textSize="12sp"
+                                android:text="Stocks" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
+
+
 
         </LinearLayout>
 

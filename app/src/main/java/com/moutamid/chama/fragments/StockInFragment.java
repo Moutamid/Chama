@@ -107,6 +107,7 @@ public class StockInFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
+                            stock_out.clear();
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 ArrayList<StockModel> subList = new ArrayList<>();
                                 for (DataSnapshot dataSnapshot2 : dataSnapshot.getChildren()) {

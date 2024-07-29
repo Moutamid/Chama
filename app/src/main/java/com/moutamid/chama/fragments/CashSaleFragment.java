@@ -102,6 +102,7 @@ public class CashSaleFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
+                            saleList.clear();
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 ArrayList<SaleModel> subList = new ArrayList<>();
                                 for (DataSnapshot dataSnapshot2 : dataSnapshot.getChildren()) {
