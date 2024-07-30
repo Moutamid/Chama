@@ -95,34 +95,21 @@ public class AddMembersActivity extends AppCompatActivity {
         Constants.showDialog();
         chatModel.groupMembers.addAll(currentItems);
         ArrayList<UserModel> groupMembers = chatModel.groupMembers;
-        if (chatModel.isSoccoGroup) {
-            Constants.databaseReference().child(Constants.SOCO)
-                    .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers)
+        for (int i = 0; i < groupMembers.size(); i++) {
+            UserModel users = groupMembers.get(i);
+            int finalI = i;
+            Constants.databaseReference().child(Constants.CHATS).child(users.id)
+                    .child(chatModel.id).setValue(chatModel)
                     .addOnSuccessListener(unused -> {
-                        Stash.put(Constants.CHATS, chatModel);
-                        onBackPressed();
+                        if (finalI == groupMembers.size()-1) {
+                            Stash.put(Constants.CHATS, chatModel);
+                            onBackPressed();
+                        }
                     })
                     .addOnFailureListener(e -> {
                         Constants.dismissDialog();
                         Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     });
-        } else {
-            for (int i = 0; i < groupMembers.size(); i++) {
-                UserModel users = groupMembers.get(i);
-                int finalI = i;
-                Constants.databaseReference().child(Constants.CHATS).child(users.id)
-                        .child(chatModel.id).child("groupMembers").setValue(chatModel.groupMembers)
-                        .addOnSuccessListener(unused -> {
-                            if (finalI == groupMembers.size()-1) {
-                                Stash.put(Constants.CHATS, chatModel);
-                                onBackPressed();
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            Constants.dismissDialog();
-                            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        });
-            }
         }
     }
 

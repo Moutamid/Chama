@@ -123,7 +123,7 @@ public class DashboardFragment extends Fragment {
             selectedLayout = binding.allListing;
             selectedText = binding.allListingText;
 
-          //  showAll();
+            showAllListing();
         });
 
         binding.sales.setOnClickListener(v -> {
@@ -305,6 +305,7 @@ public class DashboardFragment extends Fragment {
                             LineData lineData = new LineData(dataSet);
                             lineData.setValueTextColor(Color.BLACK);
                             lineData.setValueTextSize(9f);
+
                             lineChart.setData(lineData);
                             lineChart.invalidate();
                         }
@@ -312,10 +313,10 @@ public class DashboardFragment extends Fragment {
         }
     }
 
-    List<Entry> sale = new ArrayList<>();
-    List<Entry> cash = new ArrayList<>();
-    List<Entry> stock = new ArrayList<>();
-    LineData lineData = new LineData();
+    List<Entry> sale;
+    List<Entry> cash;
+    List<Entry> stock;
+    LineData lineData;
 
     private void showAll() {
         List<Entry> allStockEntries = new ArrayList<>();
@@ -418,28 +419,38 @@ public class DashboardFragment extends Fragment {
         salesDataSet.setDrawCircleHole(false);
         salesDataSet.setHighLightColor(Color.rgb(244, 117, 117));
 
-        LineData lineData = new LineData(stockDataSet, cashDataSet, salesDataSet);
+        LineData lineData = new LineData(stockDataSet);
+        lineData.addDataSet(cashDataSet);
+        lineData.addDataSet(salesDataSet);
+
         lineChart.setData(lineData);
         lineChart.invalidate();
     }
 
     private void showAllListing() {
-        int i = 0;
-        for (ChatModel chatModel : groups) {
-            i += 1;
+        lineData = new LineData();
+        sale = new ArrayList<>();
+        cash = new ArrayList<>();
+        stock = new ArrayList<>();
+        Log.d(TAG, "showAllListing: groups " + groups.size());
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
             int finalI = i;
             Constants.databaseReference().child(Constants.CREDIT_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
+                            Log.d(TAG, "showAllListing: " + finalI);
                             float xIndex = 0;
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stockModel = snapshot2.getValue(StockModel.class);
                                     float value = (float) stockModel.unit_price;
+                                    Log.d(TAG, "showAllListing: value " + value);
                                     sale.add(new Entry(xIndex, value));
                                     xIndex++;
                                 }
                             }
+                            Log.d(TAG, "showAllListing: " + sale.size());
                             LineDataSet saleSet = new LineDataSet(sale, "");
                             saleSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             saleSet.setColor(getResources().getColor(R.color.red));
@@ -454,18 +465,20 @@ public class DashboardFragment extends Fragment {
                             saleSet.setHighLightColor(Color.rgb(244, 117, 117));
                             lineData.addDataSet(saleSet);
                         }
-                        if (finalI >= groups.size() - 1){
+
+                        if (finalI == groups.size() - 1) {
+                            Log.d(TAG, "showAllListing IF INSIDE");
                             getCashData();
                         }
+
                     });
         }
 
     }
 
     private void getCashData() {
-        int i = 0;
-        for (ChatModel chatModel : groups) {
-            i += 1;
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
             int finalI = i;
             Constants.databaseReference().child(Constants.CASH_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
@@ -475,6 +488,7 @@ public class DashboardFragment extends Fragment {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stockModel = snapshot2.getValue(StockModel.class);
                                     float value = (float) stockModel.unit_price;
+                                    Log.d(TAG, "getCashData:  csh value " + value);
                                     cash.add(new Entry(xIndex, value));
                                     xIndex++;
                                 }
@@ -493,7 +507,8 @@ public class DashboardFragment extends Fragment {
                             cashSet.setHighLightColor(Color.rgb(244, 117, 117));
                             lineData.addDataSet(cashSet);
                         }
-                        if (finalI >= groups.size() - 1){
+                        if (finalI == groups.size() - 1) {
+                            Log.d(TAG, "showAllListing IF CASH");
                             getStockData();
                         }
                     });
@@ -501,7 +516,9 @@ public class DashboardFragment extends Fragment {
     }
 
     private void getStockData() {
-        for (ChatModel chatModel : groups) {
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
+            int finalI = i;
             Constants.databaseReference().child(Constants.STOCK).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
@@ -528,10 +545,14 @@ public class DashboardFragment extends Fragment {
                             stockSet.setFillColor(getResources().getColor(R.color.purple));
                             stockSet.setDrawCircleHole(false);
                             stockSet.setHighLightColor(Color.rgb(244, 117, 117));
-                            lineData.addDataSet(stockSet);
 
-                            lineData.setValueTextColor(Color.BLACK);
-                            lineData.setValueTextSize(9f);
+
+//                            lineData.setValueTextColor(Color.BLACK);
+//                            lineData.setValueTextSize(9f);
+                            lineData.addDataSet(stockSet);
+                        }
+                        if (finalI == groups.size() - 1) {
+                            Log.d(TAG, "getStockData: SET");
                             lineChart.setData(lineData);
                             lineChart.invalidate();
                         }
