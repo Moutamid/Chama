@@ -71,6 +71,8 @@ public class StockOutFragment extends Fragment {
                             if (model.isBusinessGroup)
                                 groups.add(model);
                         }
+                    } else {
+                        Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show();
                     }
 
                     List<String> names = groups.stream()
@@ -129,6 +131,8 @@ public class StockOutFragment extends Fragment {
                                 }
                                 mainList.add(new StockInFragment.Stock(dataSnapshot.getKey(), subList));
                             }
+                        } else {
+                            Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show();
                         }
                         if (isAdded()) updateTable(mainList);
                     }

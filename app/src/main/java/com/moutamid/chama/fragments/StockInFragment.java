@@ -40,6 +40,7 @@ public class StockInFragment extends Fragment {
     ArrayList<Stock> stock_out = new ArrayList<>();
     ArrayList<ProductModel> list = new ArrayList<>();
     ArrayList<ChatModel> groups;
+
     public StockInFragment() {
         // Required empty public constructor
     }
@@ -116,6 +117,8 @@ public class StockInFragment extends Fragment {
                                 }
                                 stock_out.add(new Stock(dataSnapshot.getKey(), subList));
                             }
+                        } else {
+                            Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show();
                         }
                         Constants.databaseReference().child(Constants.PRODUCTS).child(chatModel.id).get()
                                 .addOnSuccessListener(dataSnapshot -> {
@@ -158,6 +161,8 @@ public class StockInFragment extends Fragment {
                                 }
                                 mainList.add(new Stock(dataSnapshot.getKey(), subList));
                             }
+                        } else {
+                            Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show();
                         }
                         if (isAdded()) updateTable(mainList);
                     }
@@ -215,7 +220,7 @@ public class StockInFragment extends Fragment {
 
                 date.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(s.date));
                 price.setText("$" + String.format(Locale.getDefault(), "%,.2f", s.buying_price));
-                unit.setText(s.unit +" "+ s.measuring_unit);
+                unit.setText(s.unit + " " + s.measuring_unit);
                 quantity.setText(String.valueOf(s.quantity));
 
                 tableRow.addView(dateView);
@@ -247,7 +252,7 @@ public class StockInFragment extends Fragment {
             int sold = 0;
             Stock stock = stock_out.stream().filter(stock1 -> Objects.equals(stock1.name, model.name)).findFirst().orElse(null);
             if (stock != null) {
-             sold = (int) stock.list.stream()
+                sold = (int) stock.list.stream()
                         .mapToDouble(stockModel -> stockModel.quantity)
                         .sum();
             }
@@ -303,6 +308,7 @@ public class StockInFragment extends Fragment {
     public static class Stock {
         public String name;
         public ArrayList<StockModel> list;
+
         public Stock(String name, ArrayList<StockModel> list) {
             this.name = name;
             this.list = list;

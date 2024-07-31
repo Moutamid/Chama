@@ -191,52 +191,62 @@ public class DashboardFragment extends Fragment {
     }
 
     private void showStock() {
-        for (ChatModel chatModel : groups) {
+        List<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(0,0));
+        final float[] xIndex = {1};
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
+            int finalI = i;
             Constants.databaseReference().child(Constants.STOCK).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
-                       if (dataSnapshot.exists()) {
-                           List<Entry> entries = new ArrayList<>();
-                           float xIndex = 0;
-                           for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                               for (DataSnapshot snapshot2 : snapshot.getChildren()) {
-                                   StockModel stock = snapshot2.getValue(StockModel.class);
-                                   if (stock != null) {
-                                       float value = (float) stock.unit_price;
-                                       entries.add(new Entry(xIndex, value));
-                                       xIndex++;
-                                   }
-                               }
-                           }
-                           LineDataSet dataSet = new LineDataSet(entries, "");
-                           dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
-                           dataSet.setColor(getResources().getColor(R.color.purple));
-                           dataSet.setDrawCircles(false);
-                           dataSet.setDrawValues(false);
-                           dataSet.setCircleColor(getResources().getColor(R.color.purple));
-                           dataSet.setLineWidth(2f);
-                           dataSet.setCircleRadius(3f);
-                           dataSet.setFillAlpha(65);
-                           dataSet.setFillColor(getResources().getColor(R.color.purple));
-                           dataSet.setDrawCircleHole(false);
-                           dataSet.setHighLightColor(Color.rgb(244, 117, 117));
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                    StockModel stock = snapshot2.getValue(StockModel.class);
+                                    if (stock != null) {
+                                        float value = (float) stock.unit_price;
+                                        entries.add(new Entry(xIndex[0], value));
+                                        xIndex[0]++;
+                                    }
+                                }
+                            }
+                        }
 
-                           LineData lineData = new LineData(dataSet);
-                           lineData.setValueTextColor(Color.BLACK);
-                           lineData.setValueTextSize(9f);
-                           lineChart.setData(lineData);
-                           lineChart.invalidate();
-                       }
+                        if (finalI == groups.size() - 1) {
+                            LineDataSet dataSet = new LineDataSet(entries, "");
+                            dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
+                            dataSet.setColor(getResources().getColor(R.color.purple));
+                            dataSet.setDrawCircles(false);
+                            dataSet.setDrawValues(false);
+                            dataSet.setCircleColor(getResources().getColor(R.color.purple));
+                            dataSet.setLineWidth(2f);
+                            dataSet.setCircleRadius(3f);
+                            dataSet.setFillAlpha(65);
+                            dataSet.setFillColor(getResources().getColor(R.color.purple));
+                            dataSet.setDrawCircleHole(false);
+                            dataSet.setHighLightColor(Color.rgb(244, 117, 117));
+
+                            LineData lineData = new LineData(dataSet);
+                            lineData.setValueTextColor(Color.BLACK);
+                            lineData.setValueTextSize(9f);
+                            lineChart.setData(lineData);
+                            lineChart.invalidate();
+                        }
+
                     });
         }
     }
 
     private void showCash() {
-        for (ChatModel chatModel : groups) {
+        final float[] xIndex = {1};
+        List<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(0,0));
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
+            int finalI = i;
             Constants.databaseReference().child(Constants.CASH_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
-                            float xIndex = 0;
-                            List<Entry> entries = new ArrayList<>();
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stock = snapshot2.getValue(StockModel.class);
@@ -244,12 +254,14 @@ public class DashboardFragment extends Fragment {
                                         // Create entries for each stock
                                         float value = (float) stock.unit_price;
                                         Log.d(TAG, "showCash: " + value);
-                                        Log.d(TAG, "showCash: " + xIndex);
-                                        entries.add(new Entry(xIndex, value));
-                                        xIndex++;
+                                        Log.d(TAG, "showCash: " + xIndex[0]);
+                                        entries.add(new Entry(xIndex[0], value));
+                                        xIndex[0]++;
                                     }
                                 }
                             }
+                        }
+                        if (finalI == groups.size() -1){
                             LineDataSet dataSet = new LineDataSet(entries, "");
                             dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             dataSet.setColor(getResources().getColor(R.color.yellow));
@@ -275,20 +287,26 @@ public class DashboardFragment extends Fragment {
     }
 
     private void showSales() {
-        for (ChatModel chatModel : groups) {
+        List<Entry> sale = new ArrayList<>();
+        sale.add(new Entry(0,0));
+        final float[] xIndex = {1};
+        for (int i = 0; i < groups.size(); i++) {
+            ChatModel chatModel = groups.get(i);
+            int finalI = i;
             Constants.databaseReference().child(Constants.CREDIT_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
-                            List<Entry> sale = new ArrayList<>();
-                            float xIndex = 0;
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stock = snapshot2.getValue(StockModel.class);
                                     float value = (float) stock.unit_price;
-                                    sale.add(new Entry(xIndex, value));
-                                    xIndex++;
+                                    sale.add(new Entry(xIndex[0], value));
+                                    xIndex[0]++;
                                 }
                             }
+                        }
+
+                        if (finalI == groups.size() - 1) {
                             LineDataSet dataSet = new LineDataSet(sale, "");
                             dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             dataSet.setColor(getResources().getColor(R.color.red));
@@ -309,6 +327,7 @@ public class DashboardFragment extends Fragment {
                             lineChart.setData(lineData);
                             lineChart.invalidate();
                         }
+
                     });
         }
     }
@@ -433,25 +452,31 @@ public class DashboardFragment extends Fragment {
         cash = new ArrayList<>();
         stock = new ArrayList<>();
         Log.d(TAG, "showAllListing: groups " + groups.size());
+        sale.add(new Entry(0,0));
+        cash.add(new Entry(0,0));
+        stock.add(new Entry(0,0));
+        final float[] xIndex = {1};
         for (int i = 0; i < groups.size(); i++) {
             ChatModel chatModel = groups.get(i);
             int finalI = i;
             Constants.databaseReference().child(Constants.CREDIT_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
-                            Log.d(TAG, "showAllListing: " + finalI);
-                            float xIndex = 0;
+                            Log.d(TAG, "showAllListing: finalI " + finalI);
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stockModel = snapshot2.getValue(StockModel.class);
                                     float value = (float) stockModel.unit_price;
                                     Log.d(TAG, "showAllListing: value " + value);
-                                    sale.add(new Entry(xIndex, value));
-                                    xIndex++;
+                                    sale.add(new Entry(xIndex[0], value));
+                                    xIndex[0]++;
                                 }
                             }
-                            Log.d(TAG, "showAllListing: " + sale.size());
-                            LineDataSet saleSet = new LineDataSet(sale, "");
+                            Log.d(TAG, "showAllListing: sale size " + sale.size());
+                        }
+
+                        if (finalI == groups.size() - 1) {
+                            LineDataSet saleSet = new LineDataSet(sale, "Sale");
                             saleSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             saleSet.setColor(getResources().getColor(R.color.red));
                             saleSet.setDrawCircles(false);
@@ -464,11 +489,10 @@ public class DashboardFragment extends Fragment {
                             saleSet.setDrawCircleHole(false);
                             saleSet.setHighLightColor(Color.rgb(244, 117, 117));
                             lineData.addDataSet(saleSet);
-                        }
-
-                        if (finalI == groups.size() - 1) {
-                            Log.d(TAG, "showAllListing IF INSIDE");
+                            Log.d(TAG, "showAllListing: line data size " + lineData.getDataSets().size());
                             getCashData();
+//                            lineChart.setData(lineData);
+//                            lineChart.invalidate();
                         }
 
                     });
@@ -477,23 +501,26 @@ public class DashboardFragment extends Fragment {
     }
 
     private void getCashData() {
+        final float[] xIndex = {1};
         for (int i = 0; i < groups.size(); i++) {
             ChatModel chatModel = groups.get(i);
             int finalI = i;
             Constants.databaseReference().child(Constants.CASH_SALE).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
-                            float xIndex = 0;
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stockModel = snapshot2.getValue(StockModel.class);
                                     float value = (float) stockModel.unit_price;
                                     Log.d(TAG, "getCashData:  csh value " + value);
-                                    cash.add(new Entry(xIndex, value));
-                                    xIndex++;
+                                    cash.add(new Entry(xIndex[0], value));
+                                    xIndex[0]++;
                                 }
                             }
-                            LineDataSet cashSet = new LineDataSet(cash, "");
+                        }
+                        if (finalI == groups.size() - 1) {
+                            Log.d(TAG, "showAllListing IF CASH");
+                            LineDataSet cashSet = new LineDataSet(cash, "Cash");
                             cashSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             cashSet.setColor(getResources().getColor(R.color.yellow));
                             cashSet.setDrawCircles(false);
@@ -506,34 +533,39 @@ public class DashboardFragment extends Fragment {
                             cashSet.setDrawCircleHole(false);
                             cashSet.setHighLightColor(Color.rgb(244, 117, 117));
                             lineData.addDataSet(cashSet);
-                        }
-                        if (finalI == groups.size() - 1) {
-                            Log.d(TAG, "showAllListing IF CASH");
-                            getStockData();
+                            Log.d(TAG, "showAllListing: line data size " + lineData.getDataSets().size());
+                             getStockData();
+
+//                            lineChart.setData(lineData);
+//                            lineChart.invalidate();
+
                         }
                     });
         }
     }
 
     private void getStockData() {
+        final float[] xIndex = {1};
         for (int i = 0; i < groups.size(); i++) {
             ChatModel chatModel = groups.get(i);
             int finalI = i;
             Constants.databaseReference().child(Constants.STOCK).child(chatModel.id)
                     .get().addOnSuccessListener(dataSnapshot -> {
                         if (dataSnapshot.exists()) {
-                            float xIndex = 0;
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 for (DataSnapshot snapshot2 : snapshot.getChildren()) {
                                     StockModel stockModel = snapshot2.getValue(StockModel.class);
                                     if (stockModel != null) {
                                         float value = (float) stockModel.unit_price;
-                                        stock.add(new Entry(xIndex, value));
-                                        xIndex++;
+                                        stock.add(new Entry(xIndex[0], value));
+                                        xIndex[0]++;
                                     }
                                 }
                             }
-                            LineDataSet stockSet = new LineDataSet(stock, "");
+                        }
+                        if (finalI == groups.size() - 1) {
+                            Log.d(TAG, "getStockData: SET");
+                            LineDataSet stockSet = new LineDataSet(stock, "Stock");
                             stockSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
                             stockSet.setColor(getResources().getColor(R.color.purple));
                             stockSet.setDrawCircles(false);
@@ -546,13 +578,8 @@ public class DashboardFragment extends Fragment {
                             stockSet.setDrawCircleHole(false);
                             stockSet.setHighLightColor(Color.rgb(244, 117, 117));
 
-
-//                            lineData.setValueTextColor(Color.BLACK);
-//                            lineData.setValueTextSize(9f);
                             lineData.addDataSet(stockSet);
-                        }
-                        if (finalI == groups.size() - 1) {
-                            Log.d(TAG, "getStockData: SET");
+
                             lineChart.setData(lineData);
                             lineChart.invalidate();
                         }
@@ -574,7 +601,7 @@ public class DashboardFragment extends Fragment {
                             if (model.isBusinessGroup)
                                 groups.add(model);
                         }
-                      //  showAll();
+                        showAllListing();
                         getGroupsProducts(groups);
                     }
                 }).addOnFailureListener(e -> {
@@ -990,6 +1017,9 @@ public class DashboardFragment extends Fragment {
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawGridLines(true);
         leftAxis.setGranularityEnabled(true);
+
+        lineChart.setExtraOffsets(0, 0, 0, 15);
+
     }
 
     private void setLineData(int count, float range) {
