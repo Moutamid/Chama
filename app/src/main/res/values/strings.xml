@@ -4,6 +4,7 @@
     <string name="have_account">Already have account? <font color="#2477D8">Login in</font></string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="default_web_client_id">347811869733-3tqq77r3hrscqah1kj7trgormg5pceb4.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus, labore possimus ratione repudiandae voluptatem voluptates?</string>

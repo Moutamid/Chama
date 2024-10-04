@@ -14,8 +14,8 @@ playServicesAuth = "21.1.1"
 constraintlayout = "2.1.4"
 materialdrawer = "9.0.1"
 mpandroidchart = "v3.1.0"
-signseekbar = "1.0.6"
-stash = "1.3.2"
+signseekbar = "8c52404ab6"
+stash = "1c45b0e5d5"
 imageview = "3.1.0"
 volley = "1.2.1"
 
@@ -35,8 +35,8 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 materialdrawer = { module = "com.mikepenz:materialdrawer", version.ref = "materialdrawer" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
-signseekbar = { module = "com.zhouyou:signseekbar", version.ref = "signseekbar" }
-stash = { module = "com.fxn769:stash", version.ref = "stash" }
+signseekbar = { module = "com.github.zhou-you:EasySignSeekBar", version.ref = "signseekbar" }
+stash = { module = "com.github.akshay2211:Stash", version.ref = "stash" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
 
 [plugins]

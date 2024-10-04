@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.moutamid.chama"
+    namespace = "com.moutamid.chamaaa"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.moutamid.chama"
+        applicationId = "com.moutamid.chamaaa"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -19,6 +19,16 @@ android {
     }
 
     buildFeatures { viewBinding = true }
+
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+
+        // You can also exclude other conflicting files if needed
+        // exclude 'META-INF/LICENSE'
+        // exclude 'META-INF/LICENSE.txt'
+        // exclude 'META-INF/NOTICE'
+        // exclude 'META-INF/NOTICE.txt'
+    }
 
     buildTypes {
         release {
@@ -49,6 +59,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.api-client:google-api-client:1.32.1")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.18.0")
 
     implementation(libs.floatingactionbutton)
 
